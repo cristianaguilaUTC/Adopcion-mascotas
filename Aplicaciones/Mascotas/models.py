@@ -4,6 +4,7 @@ from django.db import models
 from Aplicaciones.Personas.models import Persona
 
 class Mascota(models.Model):
+  
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     especie = models.CharField(max_length=50)
