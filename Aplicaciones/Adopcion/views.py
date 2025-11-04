@@ -78,12 +78,32 @@ def editar_solicitud(request, id):
     mascotas = Mascota.objects.all()
     
     if request.method == 'POST':
+        estado_anterior = solicitud.estado
+        estado_nuevo = request.POST['estado']
+        
         solicitud.persona_id = request.POST['persona']
         solicitud.mascota_id = request.POST['mascota']
         solicitud.motivo = request.POST['motivo']
-        solicitud.estado = request.POST['estado']
+        solicitud.estado = estado_nuevo
+        
+        # ✅ ACTUALIZAR ESTADO DE MASCOTA SI SE APRUEBA
+        if estado_nuevo == 'Aprobada' and estado_anterior != 'Aprobada':
+            mascota = solicitud.mascota
+            mascota.adoptado = True
+            mascota.dueño = solicitud.persona  # Asignar dueño
+            mascota.save()
+            messages.success(request, f'✅ Mascota {mascota.nombre} marcada como adoptada')
+        
+        # ✅ REVERTIR SI SE RECHAZA UNA SOLICITUD APROBADA
+        elif estado_nuevo != 'Aprobada' and estado_anterior == 'Aprobada':
+            mascota = solicitud.mascota
+            mascota.adoptado = False
+            mascota.dueño = None
+            mascota.save()
+            messages.info(request, f'🔄 Mascota {mascota.nombre} disponible nuevamente')
         
         solicitud.save()
+        messages.success(request, 'Solicitud actualizada correctamente')
         return redirect('inicio_adopciones')
     
     return render(request, 'editar_solicitud.html', {

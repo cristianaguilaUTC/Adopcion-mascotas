@@ -37,10 +37,6 @@
                     <div class="d-flex justify-content-between">
                         <center>
                         <img  src="{% static 'logo.png' %}" alt="logo" style="width: 70%; height: 100%;"></center>
-                        <!-- <div class="logo">
-                            <a href="/"><img src="" alt="Logo"
-                                    srcset=""></a>
-                        </div> -->
                         <div class="toggler">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
                         </div>
@@ -50,26 +46,44 @@
                     <ul class="menu">
                         <li class="sidebar-title">Menú</li>
 
-                        <li class="sidebar-item {% if request.path == '/' %}active{% endif %} ">
+                        <!-- MASCOTAS - Todos los usuarios -->
+                        <li class="sidebar-item {% if request.path == '/mascotas/' %}active{% endif %}">
                             <a href="{% url 'inicio' %}" class='sidebar-link'>
                                 <i class="bi bi-globe2"></i>
                                 <span>Mascotas</span>
                             </a>
                         </li>
 
-                        <li class="sidebar-item {% if request.path == '/career' %}active{% endif %}">
-                            <a href="{% url 'inicio_personas' %}" class='sidebar-link'>
-                                <i class="bi bi-building"></i>
-                                <span>Dueño / Rescatista</span>
-                            </a>
-                        </li>
+                        <!-- PERSONAS - Solo admins -->
+                        {% if request.user.is_authenticated %}
+                            {% with user.persona as persona %}
+                                {% if persona.es_admin %}
+                                <li class="sidebar-item {% if request.path == '/personas/' %}active{% endif %}">
+                                    <a href="{% url 'inicio_personas' %}" class='sidebar-link'>
+                                        <i class="bi bi-building"></i>
+                                        <span>Dueño / Rescatista</span>
+                                    </a>
+                                </li>
 
-                        <li class="sidebar-item {% if request.path == '/teacher' %}active{% endif %}">
-                            <a href="{% url 'inicio_adopciones' %}" class='sidebar-link'>
-                                <i class="bi bi-book-fill"></i>
-                                <span>Adopción</span>
-                            </a>
-                        </li>
+                                <li class="sidebar-item {% if request.path == '/adopciones/' %}active{% endif %}">
+                                    <a href="{% url 'inicio_adopciones' %}" class='sidebar-link'>
+                                        <i class="bi bi-book-fill"></i>
+                                        <span>Adopción</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <!-- Para usuarios normales: Dashboard -->
+                                <li class="sidebar-item {% if request.path == '/dashboard/' %}active{% endif %}">
+                                    <a href="{% url 'dashboard_usuario' %}" class='sidebar-link'>
+                                        <i class="bi bi-house"></i>
+                                        <span>Mi Dashboard</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+
+                        <!-- Cerrar Sesión -->
                         <li class="sidebar-item">
                             <a href="{% url 'logout' %}" class='sidebar-link' style="color: #dc3545;">
                                 <i class="bi bi-box-arrow-right"></i>
@@ -109,5 +123,38 @@
     <script src="{% static 'js/validations.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
+    
+    <!-- SweetAlert para mensajes -->
+    <script>
+    // Mostrar mensajes de Django con SweetAlert
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{{ message.tags }}' === 'error' ? 'error' : 'success',
+                title: '{{ message|safe }}',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        {% endfor %}
+    {% endif %}
+
+    // Función para confirmar eliminaciones
+    function confirmarEliminacion(mensaje, url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: mensaje,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+    </script>
 </body>
 </html>

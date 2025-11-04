@@ -3,115 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Usuario</title>
+    <title>Dashboard - Sistema de Adopción</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin: 30px auto;
+            padding: 0;
+            overflow: hidden;
         }
-        .section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .mascota-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .btn {
-            padding: 8px 15px;
-            text-decoration: none;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            margin: 5px;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
         }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-right: 20px;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .icon-pets { background: #e8f5e8; color: var(--success); }
+        .icon-requests { background: #fff3cd; color: var(--warning); }
+        
+        .mascota-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--success);
+            transition: all 0.3s ease;
+        }
+        
+        .mascota-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .mascota-card.adoptada {
+            border-left-color: var(--danger);
+            opacity: 0.7;
+        }
+        
+        .pet-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-right: 20px;
+        }
+        
         .btn-adoptar {
-            background: #28a745;
+            background: linear-gradient(135deg, var(--success), #2ecc71);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
-        .btn-logout {
-            background: #dc3545;
+        
+        .btn-adoptar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
         }
+        
+        .btn-adoptar:disabled {
+            background: #95a5a6;
+            transform: none;
+            box-shadow: none;
+        }
+        
         .solicitud-item {
-            padding: 10px;
-            border-left: 4px solid #007bff;
-            background: #f8f9fa;
-            margin: 5px 0;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--warning);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
-        .estado-pendiente { border-left-color: #ffc107; }
-        .estado-aprobado { border-left-color: #28a745; }
-        .estado-rechazado { border-left-color: #dc3545; }
+        
+        .solicitud-item.aprobada { border-left-color: var(--success); }
+        .solicitud-item.rechazada { border-left-color: var(--danger); }
+        
+        .status-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .badge-pendiente { background: #fff3cd; color: #856404; }
+        .badge-aprobada { background: #d4edda; color: #155724; }
+        .badge-rechazada { background: #f8d7da; color: #721c24; }
+        
+        .section-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--light);
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>👋 Bienvenido, {{ persona.nombre }} {{ persona.apellido }}</h1>
-        <p><strong>Correo:</strong> {{ persona.correo }} | <strong>Teléfono:</strong> {{ persona.telefono }}</p>
-        <a href="{% url 'logout' %}" class="btn btn-logout">🚪 Cerrar Sesión</a>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="dashboard-container">
+                    <!-- Header -->
+                    <div class="dashboard-header">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h1 class="h3 mb-1">¡Hola, {{ persona.nombre }} {{ persona.apellido }}! 👋</h1>
+                                <p class="mb-0 opacity-75">
+                                    <i class="fas fa-envelope me-2"></i>{{ persona.correo }} 
+                                    | <i class="fas fa-phone me-2"></i>{{ persona.telefono|default:"No registrado" }}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-light rounded-pill px-4" onclick="confirmarSalida()">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Estadísticas -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="stats-card">
+                                    <div class="stats-icon icon-pets">
+                                        <i class="fas fa-paw"></i>
+                                    </div>
+                                    <h4 class="text-success">{{ mascotas|length }}</h4>
+                                    <p class="text-muted mb-0">Mascotas Disponibles</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stats-card">
+                                    <div class="stats-icon icon-requests">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <h4 class="text-warning">{{ solicitudes|length }}</h4>
+                                    <p class="text-muted mb-0">Mis Solicitudes</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mascotas Disponibles -->
+                        <div class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-paw me-2"></i>Mascotas para Adopción
+                            </h3>
+                            
+                            {% if mascotas %}
+                                <div class="row">
+                                    {% for mascota in mascotas %}
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="mascota-card {% if mascota.adoptado %}adoptada{% endif %}">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="pet-avatar">
+                                                        <i class="fas fa-{% if mascota.especie == 'Perro' %}dog{% else %}cat{% endif %}"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <h5 class="mb-1">{{ mascota.nombre }}</h5>
+                                                        <span class="status-badge {% if mascota.adoptado %}badge-rechazada{% else %}badge-aprobada{% endif %}">
+                                                            {% if mascota.adoptado %}❌ Adoptada{% else %}✅ Disponible{% endif %}
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-muted mb-2">
+                                                        <strong>{{ mascota.especie }}</strong> • {{ mascota.raza|default:"Raza mixta" }} • {{ mascota.edad }} años • {{ mascota.sexo }}
+                                                    </p>
+                                                    <p class="mb-3">{{ mascota.descripcion|default:"Esta mascota está buscando un hogar amoroso."|truncatewords:15 }}</p>
+                                                    
+                                                    {% if not mascota.adoptado %}
+                                                        <button class="btn btn-adoptar" 
+                                                                onclick="confirmarAdopcion('{{ mascota.nombre }}', '{% url 'nueva_solicitud_con_mascota' mascota.id %}')">
+                                                            <i class="fas fa-home me-2"></i>Solicitar Adopción
+                                                        </button>
+                                                    {% else %}
+                                                        <button class="btn btn-adoptar" disabled>
+                                                            <i class="fas fa-lock me-2"></i>No Disponible
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-paw fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No hay mascotas disponibles en este momento</h5>
+                                    <p class="text-muted">Vuelve pronto para conocer nuevas mascotas</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Mis Solicitudes -->
+                        <div class="mb-4">
+                            <h3 class="section-title">
+                                <i class="fas fa-file-alt me-2"></i>Mis Solicitudes de Adopción
+                            </h3>
+                            
+                            {% if solicitudes %}
+                                {% for solicitud in solicitudes %}
+                                <div class="solicitud-item {{ solicitud.estado|lower }}">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-1">{{ solicitud.mascota.nombre }} - {{ solicitud.mascota.especie }}</h6>
+                                                <span class="status-badge badge-{{ solicitud.estado|lower }}">
+                                                    {% if solicitud.estado == "Aprobada" %}✅{% elif solicitud.estado == "Pendiente" %}⏳{% else %}❌{% endif %}
+                                                    {{ solicitud.estado }}
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2">
+                                                <small><i class="fas fa-calendar me-1"></i>Solicitado: {{ solicitud.fecha_solicitud|date:"d/m/Y" }}</small>
+                                            </p>
+                                            <p class="mb-2"><strong>Motivo:</strong> {{ solicitud.motivo }}</p>
+                                            
+                                            {% if solicitud.estado == "Aprobada" %}
+                                                <div class="alert alert-success mt-2 mb-0">
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                    <strong>¡Felicidades!</strong> Tu solicitud fue aprobada. 🎉
+                                                </div>
+                                            {% elif solicitud.estado == "Rechazada" %}
+                                                <div class="alert alert-danger mt-2 mb-0">
+                                                    <i class="fas fa-times-circle me-2"></i>
+                                                    Lo sentimos, esta solicitud no pudo ser aprobada.
+                                                </div>
+                                            {% else %}
+                                                <div class="alert alert-warning mt-2 mb-0">
+                                                    <i class="fas fa-clock me-2"></i>
+                                                    Tu solicitud está en revisión. Te notificaremos pronto.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-file-alt fa-2x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No tienes solicitudes de adopción</h6>
+                                    <p class="text-muted">¡Encuentra tu mascota ideal y envía tu primera solicitud!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Sección: Mascotas Disponibles -->
-    <div class="section">
-        <h2>🐕 Mascotas Disponibles para Adopción</h2>
-        
-        {% if mascotas %}
-            {% for mascota in mascotas %}
-            <div class="mascota-card">
-                <h3>{{ mascota.nombre }} ({{ mascota.especie }})</h3>
-                <p><strong>Raza:</strong> {{ mascota.raza }}</p>
-                <p><strong>Edad:</strong> {{ mascota.edad }} años</p>
-                <p><strong>Sexo:</strong> {{ mascota.sexo }}</p>
-                <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
-                <a href="{% url 'nueva_solicitud_con_mascota' mascota.id %}" class="btn btn-adoptar">
-                    🏠 Solicitar Adopción
-                </a>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>No hay mascotas disponibles para adopción en este momento.</p>
-        {% endif %}
-    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function confirmarAdopcion(nombreMascota, url) {
+            Swal.fire({
+                title: '¿Solicitar Adopción?',
+                html: `<div class="text-center">
+                    <i class="fas fa-home fa-3x text-success mb-3"></i>
+                    <h5>¿Estás seguro de solicitar la adopción de <strong>${nombreMascota}</strong>?</h5>
+                    <p class="text-muted">Serás redirigido al formulario de solicitud</p>
+                    </div>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#27ae60',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-check me-2"></i>Sí, solicitar',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+                width: '500px'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
 
-    <!-- Sección: Mis Solicitudes -->
-    <div class="section">
-        <h2>📋 Mis Solicitudes de Adopción</h2>
-        
-        {% if solicitudes %}
-            {% for solicitud in solicitudes %}
-            <div class="solicitud-item estado-{{ solicitud.estado|lower }}">
-                <strong>{{ solicitud.mascota.nombre }}</strong> ({{ solicitud.mascota.especie }})
-                <br>
-                <strong>Estado:</strong> 
-                {% if solicitud.estado == "Aprobada" %}
-                    <span style="color: #28a745;">✅ {{ solicitud.estado }}</span>
-                {% elif solicitud.estado == "Pendiente" %}
-                    <span style="color: #ffc107;">⏳ {{ solicitud.estado }}</span>
-                {% else %}
-                    <span style="color: #dc3545;">❌ {{ solicitud.estado }}</span>
-                {% endif %}
-                <br>
-                <strong>Fecha:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y" }}
-                <br>
-                <strong>Motivo:</strong> {{ solicitud.motivo }}
-            </div>
+        function confirmarSalida() {
+            Swal.fire({
+                title: '¿Cerrar Sesión?',
+                text: '¿Estás seguro de que quieres salir del sistema?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#3498db',
+                confirmButtonText: '<i class="fas fa-sign-out-alt me-2"></i>Sí, salir',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'logout' %}";
+                }
+            });
+        }
+
+        // Mostrar mensajes de Django
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    icon: '{{ message.tags }}' === 'error' ? 'error' : 'success',
+                    title: '{{ message|safe }}',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
             {% endfor %}
-        {% else %}
-            <p>No tienes solicitudes de adopción.</p>
         {% endif %}
-    </div>
+    </script>
 </body>
 </html>
