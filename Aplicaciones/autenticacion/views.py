@@ -91,21 +91,22 @@ def dashboard_usuario(request):
     if not request.user.is_authenticated:
         return redirect('login')
     
-    # Obtener datos para el usuario
     try:
         persona = Persona.objects.get(usuario=request.user)
     except Persona.DoesNotExist:
         messages.error(request, 'Perfil no encontrado')
         return redirect('login')
     
-    # Mascotas disponibles
-    mascotas = Mascota.objects.filter(adoptado=False)
+    # ✅ SOLO mascotas NO adoptadas
+    mascotas_disponibles = Mascota.objects.filter(adoptado=False)
     
     # Solicitudes del usuario
     solicitudes = SolicitudAdopcion.objects.filter(persona=persona)
     
     return render(request, 'dashboard_usuario.html', {
         'persona': persona,
-        'mascotas': mascotas,
-        'solicitudes': solicitudes
+        'mascotas_disponibles': mascotas_disponibles,  # ← Solo disponibles
+        'mascotas_disponibles_count': mascotas_disponibles.count(),  # ← Contador
+        'solicitudes': solicitudes,
+        'solicitudes_count': solicitudes.count(),  # ← Contador
     })
