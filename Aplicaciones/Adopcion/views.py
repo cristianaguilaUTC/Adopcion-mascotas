@@ -70,50 +70,58 @@ def nueva_solicitud(request, mascota_id=None):
         'mascotas': mascotas,
         'mascota_seleccionada': mascota
     })
-
 @admin_required
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(SolicitudAdopcion, id=id)
     personas = Persona.objects.all()
     mascotas = Mascota.objects.all()
-    
+
     if request.method == 'POST':
+
         estado_anterior = solicitud.estado
         estado_nuevo = request.POST['estado']
-        
+
         solicitud.persona_id = request.POST['persona']
         solicitud.mascota_id = request.POST['mascota']
         solicitud.motivo = request.POST['motivo']
         solicitud.estado = estado_nuevo
         
-        # ✅ FLUJO CORREGIDO: Actualizar estado de mascota
+        # primero guardo la solicitud para actualizar relaciones
+        solicitud.save()
+
+        # ahora obtengo la mascota correcta
         mascota = solicitud.mascota
-        
-        if estado_nuevo == "Aprobada":
-            # Aprobar adopción
+
+        # --- lógica adoptado ---
+        if estado_nuevo == "Aprobado":
             mascota.adoptado = True
             mascota.dueño = solicitud.persona
             mascota.save()
             messages.success(request, f'✅ Adopción aprobada. {mascota.nombre} ahora es de {solicitud.persona.nombre}')
-            
-        elif estado_anterior == "Aprobada" and estado_nuevo != "Aprobada":
-            # Revertir adopción si se cambia de "Aprobada" a otro estado
+
+        elif estado_anterior == "Aprobado" and estado_nuevo != "Aprobado":
             mascota.adoptado = False
             mascota.dueño = None
             mascota.save()
             messages.info(request, f'🔄 Adopción revertida. {mascota.nombre} está disponible nuevamente')
-        
-        solicitud.save()
+
         return redirect('inicio_adopciones')
-    
+
     return render(request, 'editar_solicitud.html', {
         'solicitud': solicitud,
         'personas': personas,
         'mascotas': mascotas
     })
 
+
 @admin_required
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(SolicitudAdopcion, id=id)
+
+    if solicitud.estado == "Aprobado":
+        messages.error(request, "❌ No se puede eliminar una solicitud aprobada.")
+        return redirect('inicio_adopciones')
+
     solicitud.delete()
+    messages.success(request, "🗑 Solicitud eliminada correctamente.")
     return redirect('inicio_adopciones')

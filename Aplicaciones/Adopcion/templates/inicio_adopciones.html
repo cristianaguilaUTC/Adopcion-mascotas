@@ -33,7 +33,7 @@
                             <td>{{ solicitud.mascota.nombre }} ({{ solicitud.mascota.especie }})</td>
                             <td>{{ solicitud.fecha_solicitud|date:"d/m/Y" }}</td>
                             <td>
-                                {% if solicitud.estado == "Aprobada" %}
+                                {% if solicitud.estado == "Aprobado" %}
                                     <span class="badge bg-success">{{ solicitud.estado }}</span>
                                 {% elif solicitud.estado == "Pendiente" %}
                                     <span class="badge bg-warning text-dark">{{ solicitud.estado }}</span>
