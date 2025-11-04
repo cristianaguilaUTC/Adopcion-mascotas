@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Editar Mascota</title>
+    <style>
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 5px;
+        }
+
+        .btn-guardar {
+            background-color: #28a745;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+        }
+
+        form p {
+            margin: 10px 0;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 5px;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Editar Mascota: {{ mascota.nombre }}</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Nombre:</label>
+            <input type="text" name="nombre" value="{{ mascota.nombre }}" required>
+        </p>
+
+        <p>
+            <label>Especie:</label>
+            <input type="text" name="especie" value="{{ mascota.especie }}" required>
+        </p>
+
+        <p>
+            <label>Raza:</label>
+            <input type="text" name="raza" value="{{ mascota.raza }}">
+        </p>
+
+        <p>
+            <label>Edad:</label>
+            <input type="number" name="edad" value="{{ mascota.edad }}" required min="0">
+        </p>
+
+        <p>
+            <label>Sexo:</label>
+            <select name="sexo">
+                <option value="Macho" {% if mascota.sexo=="Macho" %}selected{% endif %}>Macho</option>
+                <option value="Hembra" {% if mascota.sexo=="Hembra" %}selected{% endif %}>Hembra</option>
+            </select>
+        </p>
+
+        <p>
+            <label>Descripción:</label><br>
+            <textarea name="descripcion" rows="4" cols="50">{{ mascota.descripcion }}</textarea>
+        </p>
+
+        <p>
+            <label>Fecha de rescate:</label>
+            <input type="date" name="fecha_rescate" value="{{ mascota.fecha_rescate|date:'Y-m-d' }}">
+        </p>
+
+        <p>
+            <label>Dueño:</label>
+            <select name="dueño">
+                <option value="">Seleccionar dueño</option>
+                {% for persona in personas %}
+                <option value="{{ persona.id }}" {% if mascota.dueño and mascota.dueño.id==persona.id %}selected{% endif
+                    %}>
+                    {{ persona.nombre }} {{ persona.apellido }}
+                </option>
+                {% endfor %}
+            </select>
+        </p>
+
+        <p>
+            <input type="checkbox" name="adoptado" id="adoptado" {% if mascota.adoptado %}checked{% endif %}>
+            <label for="adoptado">Adoptado</label>
+        </p>
+
+        <button type="submit" class="btn btn-guardar">Guardar Cambios</button>
+        <a href="{% url 'inicio' %}" class="btn btn-cancelar">Cancelar</a>
+    </form>
+</body>
+
+</html>

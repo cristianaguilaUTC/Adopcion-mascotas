@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nueva Persona</title>
+    <style>
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 5px;
+        }
+        .btn-guardar {
+            background-color: #28a745;
+        }
+        .btn-cancelar {
+            background-color: #6c757d;
+        }
+        form p {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+        input {
+            padding: 5px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agregar Nueva Persona</h1>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <p>
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+        </p>
+        
+        <p>
+            <label>Apellido:</label>
+            <input type="text" name="apellido" required>
+        </p>
+        
+        <p>
+            <label>Cédula:</label>
+            <input type="text" name="cedula" required>
+        </p>
+        
+        <p>
+            <label>Correo:</label>
+            <input type="email" name="correo" required>
+        </p>
+        
+        <p>
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+        </p>
+        
+        <p>
+            <label>Dirección:</label>
+            <input type="text" name="direccion" required>
+        </p>
+        
+        <button type="submit" class="btn btn-guardar">Guardar Persona</button>
+        <a href="{% url 'inicio_personas' %}" class="btn btn-cancelar">Cancelar</a>
+    </form>
+</body>
+</html>
