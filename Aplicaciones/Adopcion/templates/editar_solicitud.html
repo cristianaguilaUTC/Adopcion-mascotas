@@ -1,83 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Editar Solicitud de Adopción</title>
-    <style>
-        .btn {
-            padding: 8px 15px;
-            text-decoration: none;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            color: white;
-            margin: 5px;
+{% extends 'plantilla.html' %}
+{% block title %}Editar Solicitud{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        max-width: 650px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="page-heading">
+    <h3 class="text-center mb-4">Editar Solicitud de Adopción</h3>
+</div>
+
+<section class="section">
+    <div class="card shadow p-4 form-container">
+        <div class="card-body">
+
+            <form id="formEditarAdopcion" method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Persona:</label>
+                    <input type="text" class="form-control" value="{{ solicitud.persona.nombre }} {{ solicitud.persona.apellido }}" disabled>
+                    <input type="hidden" name="persona" value="{{ solicitud.persona.id }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mascota:</label>
+                    <input type="text" class="form-control" value="{{ solicitud.mascota.nombre }} ({{ solicitud.mascota.especie }}) - {{ solicitud.mascota.raza }}" disabled>
+                    <input type="hidden" name="mascota" value="{{ solicitud.mascota.id }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Estado:</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="Pendiente" {% if solicitud.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
+                        <option value="Aprobado" {% if solicitud.estado == "Aprobado" %}selected{% endif %}>Aprobado</option>
+                        <option value="Rechazado" {% if solicitud.estado == "Rechazado" %}selected{% endif %}>Rechazado</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Motivo:</label>
+                    <textarea class="form-control" id="motivo" name="motivo" rows="4" required>{{ solicitud.motivo }}</textarea>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'inicio_adopciones' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+
+    // SweetAlert cuando eligen Aprobado
+    $("#estado").change(function () {
+        if($(this).val() === "Aprobado"){
+            Swal.fire({
+                title: "¿Aprobar Solicitud?",
+                text: "¿Desea aprobar definitivamente esta adopción?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, aprobar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    $("#estado").val("Pendiente");
+                }
+            });
         }
-        .btn-guardar {
-            background-color: #28a745;
+    });
+
+    // VALIDAR FORM
+    $("#formEditarAdopcion").validate({
+        rules: {
+            estado: { required: true },
+            motivo: { required: true, minlength: 10, maxlength: 500 }
+        },
+        messages: {
+            estado: { required: "Seleccione un estado." },
+            motivo: {
+                required: "Ingrese el motivo.",
+                minlength: "Mínimo 10 caracteres.",
+                maxlength: "Máximo 500 caracteres."
+            }
+        },
+        errorClass: "is-invalid",
+        errorPlacement: function (error, element) {
+            error.appendTo(element.parent());
         }
-        .btn-cancelar {
-            background-color: #6c757d;
-        }
-        form p {
-            margin: 10px 0;
-        }
-        label {
-            display: inline-block;
-            width: 150px;
-        }
-        input, select, textarea {
-            padding: 5px;
-            width: 300px;
-        }
-        textarea {
-            height: 100px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Editar Solicitud de Adopción</h1>
-    
-    <form method="POST">
-        {% csrf_token %}
-        
-        <p>
-            <label>Persona:</label>
-            <select name="persona" required>
-                {% for persona in personas %}
-                    <option value="{{ persona.id }}" {% if solicitud.persona.id == persona.id %}selected{% endif %}>
-                        {{ persona.nombre }} {{ persona.apellido }}
-                    </option>
-                {% endfor %}
-            </select>
-        </p>
-        
-        <p>
-            <label>Mascota:</label>
-            <select name="mascota" required>
-                {% for mascota in mascotas %}
-                    <option value="{{ mascota.id }}" {% if solicitud.mascota.id == mascota.id %}selected{% endif %}>
-                        {{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza }}
-                    </option>
-                {% endfor %}
-            </select>
-        </p>
-        
-        <p>
-            <label>Estado:</label>
-            <select name="estado">
-                <option value="Pendiente" {% if solicitud.estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
-                <option value="Aprobado" {% if solicitud.estado == "Aprobado" %}selected{% endif %}>Aprobado</option>
-                <option value="Rechazado" {% if solicitud.estado == "Rechazado" %}selected{% endif %}>Rechazado</option>
-            </select>
-        </p>
-        
-        <p>
-            <label>Motivo:</label><br>
-            <textarea name="motivo">{{ solicitud.motivo }}</textarea>
-        </p>
-        
-        <button type="submit" class="btn btn-guardar">Guardar Cambios</button>
-        <a href="{% url 'inicio_adopciones' %}" class="btn btn-cancelar">Cancelar</a>
-    </form>
-</body>
-</html>
+    });
+});
+</script>
+{% endblock %}

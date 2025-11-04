@@ -1,72 +1,91 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Nueva Solicitud de Adopción</title>
-    <style>
-        .btn {
-            padding: 8px 15px;
-            text-decoration: none;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            color: white;
-            margin: 5px;
+{% extends 'plantilla.html' %}
+
+{% block title %}Nueva Solicitud de Adopción{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        max-width: 650px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="page-heading">
+    <h3 class="text-center mb-4">Registrar Nueva Solicitud de Adopción</h3>
+</div>
+
+<section class="section">
+    <div class="card shadow p-4 form-container">
+        <div class="card-body">
+            <form id="formAdopcion" method="POST" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="persona" class="form-label">Persona:</label>
+                    <select class="form-select" id="persona" name="persona" required>
+                        <option value="">Seleccionar persona...</option>
+                        {% for persona in personas %}
+                            <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="mascota" class="form-label">Mascota:</label>
+                    <select class="form-select" id="mascota" name="mascota" required>
+                        <option value="">Seleccionar mascota...</option>
+                        {% for mascota in mascotas %}
+                            <option value="{{ mascota.id }}">{{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="motivo" class="form-label">Motivo de Adopción:</label>
+                    <textarea class="form-control" id="motivo" name="motivo" rows="4"
+                        placeholder="Explique brevemente por qué desea adoptar esta mascota..." required></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'inicio_adopciones' %}" class="btn btn-secondary">
+                        <i class="fa fa-times me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-1"></i> Guardar Solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function () {
+    $("#formAdopcion").validate({
+        rules: {
+            persona: { required: true },
+            mascota: { required: true },
+            motivo: { required: true, minlength: 10, maxlength: 500 }
+        },
+        messages: {
+            persona: { required: "Debe seleccionar una persona." },
+            mascota: { required: "Debe seleccionar una mascota." },
+            motivo: {
+                required: "Debe ingresar un motivo.",
+                minlength: "Debe tener mínimo 10 caracteres.",
+                maxlength: "No debe exceder 500 caracteres."
+            }
+        },
+        errorClass: "is-invalid",
+        errorPlacement: function (error, element) {
+            error.appendTo(element.parent());
         }
-        .btn-guardar {
-            background-color: #28a745;
-        }
-        .btn-cancelar {
-            background-color: #6c757d;
-        }
-        form p {
-            margin: 10px 0;
-        }
-        label {
-            display: inline-block;
-            width: 150px;
-        }
-        input, select, textarea {
-            padding: 5px;
-            width: 300px;
-        }
-        textarea {
-            height: 100px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Nueva Solicitud de Adopción</h1>
-    
-    <form method="POST">
-        {% csrf_token %}
-        
-        <p>
-            <label>Persona:</label>
-            <select name="persona" required>
-                <option value="">Seleccionar persona</option>
-                {% for persona in personas %}
-                    <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
-                {% endfor %}
-            </select>
-        </p>
-        
-        <p>
-            <label>Mascota:</label>
-            <select name="mascota" required>
-                <option value="">Seleccionar mascota</option>
-                {% for mascota in mascotas %}
-                    <option value="{{ mascota.id }}">{{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza }}</option>
-                {% endfor %}
-            </select>
-        </p>
-        
-        <p>
-            <label>Motivo:</label><br>
-            <textarea name="motivo" placeholder="Explique por qué quiere adoptar esta mascota..."></textarea>
-        </p>
-        
-        <button type="submit" class="btn btn-guardar">Guardar Solicitud</button>
-        <a href="{% url 'inicio_adopciones' %}" class="btn btn-cancelar">Cancelar</a>
-    </form>
-</body>
-</html>
+    });
+});
+</script>
+{% endblock %}
+
