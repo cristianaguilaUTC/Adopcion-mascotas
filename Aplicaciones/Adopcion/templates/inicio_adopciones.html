@@ -47,7 +47,7 @@
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
                                 <button class="btn btn-danger btn-sm" 
-                                        onclick="confirmarEliminacion('{{ solicitud.id }}', '{{ solicitud.persona.nombre }}', '{{ solicitud.mascota.nombre }}')">
+                                        onclick="confirmarEliminacion('{{ solicitud.id|escapejs }}', '{{ solicitud.persona.nombre|escapejs }}', '{{ solicitud.mascota.nombre|escapejs }}')">
                                     <i class="bi bi-trash-fill"></i> Eliminar
                                 </button>
                             </td>

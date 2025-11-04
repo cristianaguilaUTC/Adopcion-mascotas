@@ -15,6 +15,8 @@ class Mascota(models.Model):
     fecha_rescate = models.DateField(blank=True, null=True)
     adoptado = models.BooleanField(default=False)
     dueño = models.ForeignKey(Persona, on_delete=models.SET_NULL, null=True, blank=True, related_name='mascotas')
+    foto = models.ImageField(upload_to='fotos_mascotas/', blank=True, null=True)
+    documento = models.FileField(upload_to='documentos_mascotas/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.nombre} ({self.especie})"

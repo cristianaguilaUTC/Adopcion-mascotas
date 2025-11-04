@@ -8,6 +8,13 @@
         max-width: 650px;
         margin: 0 auto;
     }
+    .preview-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
 </style>
 {% endblock %}
 
@@ -19,7 +26,8 @@
 <section class="section">
     <div class="card shadow p-4 form-container">
         <div class="card-body">
-            <form id="formEditarPersona" method="POST" novalidate>
+            <!-- ⚠️ Importante: enctype para permitir subida de archivos -->
+            <form id="formEditarPersona" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
                 <div class="mb-3">
@@ -56,6 +64,28 @@
                     <label for="direccion" class="form-label">Dirección:</label>
                     <input type="text" class="form-control" id="direccion" name="direccion"
                            value="{{ persona.direccion }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Foto:</label><br>
+                    {% if persona.foto %}
+                        <img src="{{ persona.foto.url }}" alt="Foto actual" class="preview-img mb-2"><br>
+                    {% else %}
+                        <span class="text-muted">Sin foto</span><br>
+                    {% endif %}
+                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                </div>
+
+                <div class="mb-3">
+                    <label for="documento_pdf" class="form-label">Documento PDF:</label><br>
+                    {% if persona.documento_pdf %}
+                        <a href="{{ persona.documento_pdf.url }}" target="_blank" class="btn btn-outline-info btn-sm mb-2">
+                            Ver documento actual
+                        </a><br>
+                    {% else %}
+                        <span class="text-muted">Sin documento</span><br>
+                    {% endif %}
+                    <input type="file" class="form-control" id="documento_pdf" name="documento_pdf" accept="application/pdf">
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

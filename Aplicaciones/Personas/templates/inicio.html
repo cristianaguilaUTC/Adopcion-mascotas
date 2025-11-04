@@ -23,6 +23,8 @@
                             <th>Correo</th>
                             <th>Teléfono</th>
                             <th>Dirección</th>
+                            <th>Foto</th>
+                            <th>Documento</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -35,7 +37,24 @@
                             <td>{{ persona.correo }}</td>
                             <td>{{ persona.telefono }}</td>
                             <td>{{ persona.direccion }}</td>
-                            <td class="text-center">
+                            <td>
+                                {% if persona.foto %}
+                                    <img src="{{ persona.foto.url }}" alt="Foto de {{ persona.nombre }}" 
+                                         class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                    <span class="text-muted">Sin foto</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if persona.documento_pdf %}
+                                    <a href="{{ persona.documento_pdf.url }}" target="_blank" class="btn btn-outline-info btn-sm">
+                                        Ver PDF
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Sin documento</span>
+                                {% endif %}
+                            </td>
+                                                <td class="text-center">
                                 <a href="{% url 'editar_persona' persona.id %}" class="btn btn-warning btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>

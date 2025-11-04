@@ -19,7 +19,7 @@
 <section class="section">
     <div class="card shadow p-4 form-container">
         <div class="card-body">
-            <form id="formMascota" method="POST" novalidate>
+            <form id="formMascota" method="POST"  enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
                 <div class="mb-3">
@@ -83,6 +83,16 @@
                 <div class="form-check mb-4">
                     <input type="checkbox" class="form-check-input" id="adoptado" name="adoptado">
                     <label class="form-check-label" for="adoptado">Adoptado</label>
+                </div>
+
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Foto de la Mascota:</label>
+                    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                </div>
+
+                <div class="mb-3">
+                    <label for="documento" class="form-label">Informe PDF:</label>
+                    <input type="file" class="form-control" id="documento" name="documento" accept="application/pdf">
                 </div>
 
                 <div class="d-grid">

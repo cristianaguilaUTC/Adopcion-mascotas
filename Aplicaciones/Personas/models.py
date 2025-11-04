@@ -12,6 +12,8 @@ class Persona(models.Model):
     direccion = models.CharField(max_length=200)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     es_admin = models.BooleanField(default=False)
+    foto = models.ImageField(upload_to='personas/fotos/', null=True, blank=True)
+    documento_pdf = models.FileField(upload_to='personas/documentos/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"

@@ -19,7 +19,8 @@
 <section class="section">
     <div class="card shadow p-4 form-container">
         <div class="card-body">
-            <form id="formMascota" method="POST" novalidate>
+            <!-- 👇 AÑADIDO: enctype para archivos -->
+            <form id="formMascota" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
                 <div class="mb-3">
@@ -86,6 +87,25 @@
                     </select>
                 </div>
 
+                <!-- 👇 NUEVOS CAMPOS -->
+                <div class="mb-3">
+                    <label for="foto" class="form-label">Foto actual:</label><br>
+                    {% if mascota.foto %}
+                        <img src="{{ mascota.foto.url }}" alt="Foto" width="120" class="mb-2 rounded"><br>
+                    {% endif %}
+                    <input type="file" class="form-control" id="foto" name="foto">
+                </div>
+
+                <div class="mb-3">
+                    <label for="documento" class="form-label">Documento actual:</label><br>
+                    {% if mascota.documento %}
+                        <a href="{{ mascota.documento.url }}" target="_blank" class="btn btn-outline-info btn-sm">
+                            Ver documento
+                        </a><br>
+                    {% endif %}
+                    <input type="file" class="form-control mt-2" id="documento" name="documento">
+                </div>
+
                 <div class="form-check mb-4">
                     <input type="checkbox" class="form-check-input" id="adoptado" name="adoptado"
                            {% if mascota.adoptado %}checked{% endif %}>
@@ -104,60 +124,4 @@
         </div>
     </div>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$(document).ready(function () {
-    const razasPorEspecie = {
-        "Canina": ["Labrador Retriever", "Pastor Alemán", "Bulldog", "Golden Retriever", "Beagle", "Chihuahua", "Poodle", "Rottweiler", "Boxer", "Dálmata"],
-        "Felina": ["Persa", "Siamés", "Maine Coon", "Bengalí", "Esfinge", "Angora", "British Shorthair", "Abisinio"],
-        "Aviar": ["Perico", "Canario", "Loro", "Agapornis", "Cacatúa"],
-        "Reptil": ["Iguana", "Serpiente", "Tortuga", "Camaleón"]
-    };
-
-    const razaActual = "{{ mascota.raza }}";
-
-    function actualizarRazas() {
-        const especie = $("#especie").val();
-        const razaSelect = $("#raza");
-
-        if (especie === "Otro") {
-            $("#grupoRaza").html(`
-                <label for="raza" class="form-label">Raza:</label>
-                <input type="text" class="form-control" id="raza" name="raza" value="${razaActual}">
-            `);
-            return;
-        }
-
-        razaSelect.empty();
-        razaSelect.append('<option value="">Seleccione una raza...</option>');
-        if (razasPorEspecie[especie]) {
-            razasPorEspecie[especie].forEach(raza => {
-                razaSelect.append(`<option value="${raza}" ${raza === razaActual ? 'selected' : ''}>${raza}</option>`);
-            });
-        }
-    }
-
-    $("#especie").change(actualizarRazas);
-    actualizarRazas();
-
-    $("#formMascota").validate({
-        rules: {
-            nombre: { required: true, minlength: 2 },
-            especie: { required: true },
-            raza: { required: true },
-            edad: { required: true, digits: true },
-            sexo: { required: true }
-        },
-        messages: {
-            nombre: { required: "Ingrese el nombre de la mascota" },
-            especie: { required: "Seleccione una especie" },
-            raza: { required: "Seleccione o escriba una raza" },
-            edad: { required: "Ingrese la edad" },
-            sexo: { required: "Seleccione el sexo" }
-        }
-    });
-});
-</script>
 {% endblock %}

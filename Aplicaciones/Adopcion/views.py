@@ -118,10 +118,15 @@ def editar_solicitud(request, id):
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(SolicitudAdopcion, id=id)
 
+    # Si la solicitud estaba aprobada, revertimos el estado de la mascota
     if solicitud.estado == "Aprobado":
-        messages.error(request, "❌ No se puede eliminar una solicitud aprobada.")
-        return redirect('inicio_adopciones')
+        mascota = solicitud.mascota
+        mascota.adoptado = False
+        mascota.dueño = None
+        mascota.save()
 
+    # Solo eliminamos la solicitud, no la persona ni la mascota
     solicitud.delete()
-    messages.success(request, "🗑 Solicitud eliminada correctamente.")
+
+    messages.success(request, "🗑️ Solicitud eliminada correctamente.")
     return redirect('inicio_adopciones')

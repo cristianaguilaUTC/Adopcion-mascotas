@@ -82,9 +82,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'adopcion_mascotas',
         'USER': 'postgres', 
-        #'PASSWORD': 'aiypwzqp',
+        'PASSWORD': 'aiypwzqp',
         #'PASSWORD': '2525',
-        'PASSWORD': 'San+Ale+2424+',
+        #'PASSWORD': 'San+Ale+2424+',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -137,5 +137,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Este es el link de la carpeta media
 MEDIA_URL = '/media/'
-MEDIA_ROOT = (os.path.join(BASE_DIR, 'AdopcionMascota/media/'))
+MEDIA_ROOT = (os.path.join(BASE_DIR, 'media'))
 

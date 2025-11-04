@@ -21,20 +21,22 @@ def nueva_mascota(request):
         mascota.sexo = request.POST['sexo']
         mascota.descripcion = request.POST['descripcion']
         mascota.fecha_rescate = request.POST['fecha_rescate']
-        
-        if 'adoptado' in request.POST:
-            mascota.adoptado = True
-        else:
-            mascota.adoptado = False
-            
-        if request.POST['dueño'] != '':
-            dueño = Persona.objects.get(id=request.POST['dueño'])
-            mascota.dueño = dueño
-            
+        mascota.adoptado = 'adoptado' in request.POST
+
+        if request.POST.get('dueño'):
+            mascota.dueño = Persona.objects.get(id=request.POST['dueño'])
+
+        # 👇 Guardar foto y documento si existen
+        if 'foto' in request.FILES:
+            mascota.foto = request.FILES['foto']
+        if 'documento' in request.FILES:
+            mascota.documento = request.FILES['documento']
+
         mascota.save()
         return redirect('inicio')
     
     return render(request, 'nuevo_mascota.html', {'personas': personas})
+
 
 @admin_required
 def editar_mascota(request, id):
@@ -52,10 +54,15 @@ def editar_mascota(request, id):
         mascota.adoptado = 'adoptado' in request.POST
         
         if request.POST['dueño'] != '':
-            dueño = Persona.objects.get(id=request.POST['dueño'])
-            mascota.dueño = dueño
+            mascota.dueño = Persona.objects.get(id=request.POST['dueño'])
         else:
             mascota.dueño = None
+
+        # 👇 Manejar archivos nuevos si se suben
+        if 'foto' in request.FILES:
+            mascota.foto = request.FILES['foto']
+        if 'documento' in request.FILES:
+            mascota.documento = request.FILES['documento']
             
         mascota.save()
         return redirect('inicio')

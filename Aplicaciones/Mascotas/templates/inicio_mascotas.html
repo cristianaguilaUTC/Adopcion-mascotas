@@ -24,6 +24,9 @@
                             <th>Sexo</th>
                             <th>Adoptado</th>
                             <th>Dueño</th>
+                            <th>Foto</th>
+                            <th>Documento</th>
+                            
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -49,6 +52,24 @@
                                     <span class="text-muted">Sin dueño</span>
                                 {% endif %}
                             </td>
+                            <td>
+                                {% if mascota.foto %}
+                                    <img src="{{ mascota.foto.url }}" alt="Foto de {{ mascota.nombre }}" width="70" class="rounded">
+                                {% else %}
+                                    <span class="text-muted">Sin foto</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if mascota.documento %}
+                                    <a href="{{ mascota.documento.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        Ver PDF
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Sin documento</span>
+                                {% endif %}
+                            </td>
+
                             <td>
                                 {% if request.user.is_authenticated and request.user.persona.es_admin %}
                                     <a href="{% url 'editar_mascota' mascota.id %}" class="btn btn-warning btn-sm">Editar</a>
