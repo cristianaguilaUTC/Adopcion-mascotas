@@ -1,18 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Mascota
 from Aplicaciones.Personas.models import Persona
+from Aplicaciones.autenticacion.decorators import login_required, admin_required
 
+@login_required
 def inicio(request):
-    # Mostrar todas las mascotas
     mascotas = Mascota.objects.all()
     return render(request, 'inicio_mascotas.html', {'mascotas': mascotas})
 
+@admin_required
 def nueva_mascota(request):
-    # Obtener todas las personas para el dueño
     personas = Persona.objects.all()
     
     if request.method == 'POST':
-        # Crear nueva mascota con los datos del formulario
         mascota = Mascota()
         mascota.nombre = request.POST['nombre']
         mascota.especie = request.POST['especie']
@@ -22,13 +22,11 @@ def nueva_mascota(request):
         mascota.descripcion = request.POST['descripcion']
         mascota.fecha_rescate = request.POST['fecha_rescate']
         
-        # Verificar si está adoptado
         if 'adoptado' in request.POST:
             mascota.adoptado = True
         else:
             mascota.adoptado = False
             
-        # Asignar dueño si se seleccionó uno
         if request.POST['dueño'] != '':
             dueño = Persona.objects.get(id=request.POST['dueño'])
             mascota.dueño = dueño
@@ -38,8 +36,7 @@ def nueva_mascota(request):
     
     return render(request, 'nuevo_mascota.html', {'personas': personas})
 
-
-
+@admin_required
 def editar_mascota(request, id):
     mascota = get_object_or_404(Mascota, id=id)
     personas = Persona.objects.all()
@@ -68,6 +65,7 @@ def editar_mascota(request, id):
         'personas': personas
     })
 
+@admin_required
 def eliminar_mascota(request, id):
     mascota = get_object_or_404(Mascota, id=id)
     mascota.delete()

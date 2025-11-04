@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .mascota-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 5px;
+        }
+        .btn-adoptar {
+            background: #28a745;
+        }
+        .btn-logout {
+            background: #dc3545;
+        }
+        .solicitud-item {
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+            margin: 5px 0;
+        }
+        .estado-pendiente { border-left-color: #ffc107; }
+        .estado-aprobado { border-left-color: #28a745; }
+        .estado-rechazado { border-left-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👋 Bienvenido, {{ persona.nombre }} {{ persona.apellido }}</h1>
+        <p><strong>Correo:</strong> {{ persona.correo }} | <strong>Teléfono:</strong> {{ persona.telefono }}</p>
+        <a href="{% url 'logout' %}" class="btn btn-logout">🚪 Cerrar Sesión</a>
+    </div>
+
+    <!-- Sección: Mascotas Disponibles -->
+    <div class="section">
+        <h2>🐕 Mascotas Disponibles para Adopción</h2>
+        
+        {% if mascotas %}
+            {% for mascota in mascotas %}
+            <div class="mascota-card">
+                <h3>{{ mascota.nombre }} ({{ mascota.especie }})</h3>
+                <p><strong>Raza:</strong> {{ mascota.raza }}</p>
+                <p><strong>Edad:</strong> {{ mascota.edad }} años</p>
+                <p><strong>Sexo:</strong> {{ mascota.sexo }}</p>
+                <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
+                <a href="{% url 'nueva_solicitud_con_mascota' mascota.id %}" class="btn btn-adoptar">
+                    🏠 Solicitar Adopción
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No hay mascotas disponibles para adopción en este momento.</p>
+        {% endif %}
+    </div>
+
+    <!-- Sección: Mis Solicitudes -->
+    <div class="section">
+        <h2>📋 Mis Solicitudes de Adopción</h2>
+        
+        {% if solicitudes %}
+            {% for solicitud in solicitudes %}
+            <div class="solicitud-item estado-{{ solicitud.estado|lower }}">
+                <strong>{{ solicitud.mascota.nombre }}</strong> ({{ solicitud.mascota.especie }})
+                <br>
+                <strong>Estado:</strong> 
+                {% if solicitud.estado == "Aprobada" %}
+                    <span style="color: #28a745;">✅ {{ solicitud.estado }}</span>
+                {% elif solicitud.estado == "Pendiente" %}
+                    <span style="color: #ffc107;">⏳ {{ solicitud.estado }}</span>
+                {% else %}
+                    <span style="color: #dc3545;">❌ {{ solicitud.estado }}</span>
+                {% endif %}
+                <br>
+                <strong>Fecha:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y" }}
+                <br>
+                <strong>Motivo:</strong> {{ solicitud.motivo }}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No tienes solicitudes de adopción.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

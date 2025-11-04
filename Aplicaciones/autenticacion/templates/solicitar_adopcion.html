@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Adopción</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            margin: 5px;
+        }
+        .btn-enviar {
+            background: #28a745;
+        }
+        .btn-cancelar {
+            background: #6c757d;
+        }
+        .mascota-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Solicitar Adopción</h1>
+        
+        <div class="mascota-info">
+            <h3>Estás solicitando adoptar a:</h3>
+            <p><strong>Nombre:</strong> {{ mascota.nombre }}</p>
+            <p><strong>Especie:</strong> {{ mascota.especie }}</p>
+            <p><strong>Raza:</strong> {{ mascota.raza }}</p>
+            <p><strong>Edad:</strong> {{ mascota.edad }} años</p>
+            <p><strong>Sexo:</strong> {{ mascota.sexo }}</p>
+            <p><strong>Descripción:</strong> {{ mascota.descripcion }}</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 20px;">
+                <label><strong>Motivo de la adopción:</strong></label><br>
+                <textarea name="motivo" placeholder="Explique por qué quiere adoptar esta mascota, su experiencia con mascotas, condiciones de su hogar, etc." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-enviar">✅ Enviar Solicitud</button>
+            <a href="{% url 'dashboard_usuario' %}" class="btn btn-cancelar">❌ Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>
