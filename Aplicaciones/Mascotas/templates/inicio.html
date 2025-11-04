@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mascotas</title>
+    <style>
+        .btn {
+            padding: 5px 10px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 2px;
+            display: inline-block;
+        }
+        .btn-editar {
+            background-color: #ffc107;
+        }
+        .btn-eliminar {
+            background-color: #dc3545;
+        }
+        .btn-agregar {
+            background-color: #28a745;
+            padding: 8px 15px;
+            margin-bottom: 10px;
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        function confirmarEliminacion(nombre) {
+            return confirm('¿Estás seguro de que quieres eliminar a ' + nombre + '?');
+        }
+    </script>
+</head>
+<body>
+    <h1>Lista de Mascotas</h1>
+    
+    <a href="{% url 'nueva_mascota' %}" class="btn btn-agregar">Agregar Mascota</a>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Especie</th>
+                <th>Raza</th>
+                <th>Edad</th>
+                <th>Sexo</th>
+                <th>Adoptado</th>
+                <th>Dueño</th>
+                <th>Acciones</th>  <!-- COLUMNA ACCIONES -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for mascota in mascotas %}
+            <tr>
+                <td>{{ mascota.nombre }}</td>
+                <td>{{ mascota.especie }}</td>
+                <td>{{ mascota.raza }}</td>
+                <td>{{ mascota.edad }}</td>
+                <td>{{ mascota.sexo }}</td>
+                <td>
+                    {% if mascota.adoptado %}
+                        Sí
+                    {% else %}
+                        No
+                    {% endif %}
+                </td>
+                <td>
+                    {% if mascota.dueño %}
+                        {{ mascota.dueño }}
+                    {% else %}
+                        Sin dueño
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- BOTONES DE ACCIONES -->
+                    <a href="{% url 'editar_mascota' mascota.id %}" class="btn btn-editar">Editar</a>
+                    <a href="{% url 'eliminar_mascota' mascota.id %}" class="btn btn-eliminar" 
+                       onclick="return confirmarEliminacion('{{ mascota.nombre }}')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
