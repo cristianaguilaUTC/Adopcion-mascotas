@@ -308,7 +308,7 @@
                                                     {% endif %}
                                                 </span>
                                                 <!-- ✅ BOTÓN PDF SOLO PARA ADOPCIONES APROBADAS -->
-                                                {% if solicitud.estado == "Aprobada" %}
+                                                {% if solicitud.estado == "Aprobado" %}
                                                 <a href="{% url 'generar_certificado' solicitud.id %}" class="btn btn-danger btn-sm" 
                                                 title="Descargar Certificado de Adopción">
                                                     <i class="fas fa-file-pdf me-1"></i> PDF

@@ -263,7 +263,7 @@ def generar_certificado_adopcion(request, solicitud_id):
         solicitud = get_object_or_404(SolicitudAdopcion, id=solicitud_id, persona=persona_usuario)
         
         # Solo permitir si está aprobada
-        if solicitud.estado != "Aprobada":
+        if solicitud.estado != "Aprobado":
             messages.error(request, "Solo puedes generar certificados para adopciones aprobadas")
             return redirect('dashboard_usuario')
         
