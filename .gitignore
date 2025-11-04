@@ -1,11 +1,24 @@
 # .gitignore
+
+# Archivos compilados de Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
+
+# Entornos virtuales
 env/
 venv/
+.venv/
+
+# Base de datos SQLite
 *.sqlite3
-.db
+*.db
+
+# Archivos del sistema
 .DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
