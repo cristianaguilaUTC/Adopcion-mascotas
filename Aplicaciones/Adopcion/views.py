@@ -5,6 +5,15 @@ from Aplicaciones.Mascotas.models import Mascota
 from Aplicaciones.autenticacion.decorators import login_required, admin_required
 from django.contrib import messages
 
+#extenciones para las graficas
+from datetime import date, timedelta
+from collections import defaultdict
+
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
+from django.shortcuts import render
+
+
 
 from Aplicaciones.autenticacion.decorators import login_required
 
@@ -130,3 +139,107 @@ def eliminar_solicitud(request, id):
 
     messages.success(request, "🗑️ Solicitud eliminada correctamente.")
     return redirect('inicio_adopciones')
+
+
+
+#---------------------------------------------
+
+def dashboard(request):
+    # ---- RANGO DE FECHAS (últimos 30 días) ----
+    hoy = date.today()
+    desde = hoy - timedelta(days=29)
+    dias = [desde + timedelta(days=i) for i in range(30)]  # lista ordenada de fechas
+
+    # ---- 1) SERIES: SOLICITUDES POR DÍA Y POR ESTADO ----
+    qs = (
+        SolicitudAdopcion.objects
+        .filter(fecha_solicitud__date__gte=desde, fecha_solicitud__date__lte=hoy)
+        .annotate(d=TruncDate('fecha_solicitud'))
+        .values('d', 'estado')
+        .annotate(total=Count('id'))
+        .order_by('d')
+    )
+
+    # Estados detectados dinámicamente (por si en el futuro agregas más)
+    estados_presentes = list(
+        SolicitudAdopcion.objects.values_list('estado', flat=True).distinct()
+    ) or ["Pendiente", "Aprobado", "Rechazado"]
+
+    # Mapa: estado -> {fecha -> total}
+    mapa = defaultdict(lambda: defaultdict(int))
+    for r in qs:
+        mapa[r['estado']][r['d']] = r['total']
+
+    # Armamos datasets alineando cada estado contra TODAS las fechas
+    labels_fechas = [d.strftime("%d-%m") for d in dias]
+    series_por_estado = {}
+    for est in estados_presentes:
+        serie = [mapa[est][d] for d in dias]
+        series_por_estado[est] = serie
+
+    # ---- 2) ADOPTADOS VS NO ADOPTADOS ----
+    adoptados_si = Mascota.objects.filter(adoptado=True).count()
+    adoptados_no = Mascota.objects.filter(adoptado=False).count()
+
+    # ---- 3) MACHOS VS HEMBRAS ----
+    sexos = Mascota.objects.values('sexo').annotate(total=Count('id'))
+    sexos_labels = [x['sexo'] or 'No definido' for x in sexos]
+    sexos_data = [x['total'] for x in sexos]
+
+
+    # ---- 4) PREFERENCIA POR ESPECIE (conteo de mascotas por especie) ----
+    por_especie = Mascota.objects.values('especie').annotate(total=Count('id'))
+    especie_labels = [e['especie'] for e in por_especie]
+    especie_data = [e['total'] for e in por_especie]
+
+    # ---- 5) DISTRIBUCIÓN DE EDADES POR ESPECIE (con filtro) ----
+    # Rangos: 0-1, 2-4, 5-7, 8-10, 11+
+    bucket_labels = ["0-1", "2-4", "5-7", "8-10", "11+"]
+    def bucketizar(edad: int) -> int:
+        if edad is None: return 0
+        if edad <= 1: return 0
+        if edad <= 4: return 1
+        if edad <= 7: return 2
+        if edad <= 10: return 3
+        return 4
+
+    especies_distintas = list(Mascota.objects.values_list('especie', flat=True).distinct())
+    edades_por_especie = {}
+    for esp in especies_distintas:
+        cont = [0, 0, 0, 0, 0]
+        for edad in Mascota.objects.filter(especie=esp).values_list('edad', flat=True):
+            if edad is None: 
+                continue
+            cont[bucketizar(edad)] += 1
+        edades_por_especie[esp] = cont
+
+    # especie seleccionada por query param (?especie=Canina), por defecto la primera
+    especie_sel = request.GET.get('especie') or (especies_distintas[0] if especies_distintas else "Canina")
+    edades_dataset_actual = edades_por_especie.get(especie_sel, [0, 0, 0, 0, 0])
+
+    context = {
+        # linea por día/estado
+        "labels_fechas": labels_fechas,
+        "estados": estados_presentes,
+        "series_por_estado": series_por_estado,
+
+        # adoptados
+        "adoptados_labels": ["Adoptadas", "No adoptadas"],
+        "adoptados_data": [adoptados_si, adoptados_no],
+
+        # sexos
+        "sexos_labels": [s['sexo'] or 'No definido' for s in sexos],
+        "sexos_data": sexos_data,
+
+        # especies
+        "especie_labels": especie_labels,
+        "especie_data": especie_data,
+
+        # edades por especie
+        "bucket_labels": bucket_labels,
+        "especies_distintas": especies_distintas,
+        "especie_sel": especie_sel,
+        "edades_por_especie": edades_por_especie,  # mandamos todo para cambiar sin recargar
+        "edades_dataset_actual": edades_dataset_actual,
+    }
+    return render(request, "dashboard.html", context)

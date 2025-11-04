@@ -1,0 +1,177 @@
+{% extends 'plantilla.html' %}
+{% load static %}
+{% block title %}Dashboard BI{% endblock %}
+
+{% block contenido %}
+<div class="page-heading">
+  <h3 class="text-center mb-3">Dashboard BI</h3>
+</div>
+
+<section class="section">
+  <div class="container-fluid">
+    <div class="row g-4">
+
+      <!-- FILTRO DE EDADES POR ESPECIE -->
+      <div class="col-12">
+        <div class="card p-3">
+          <div class="d-flex align-items-center gap-3">
+            <h6 class="m-0">Distribución de edades por especie</h6>
+            <select id="filtroEspecie" class="form-select" style="max-width: 240px;">
+              {% for e in especies_distintas %}
+                <option value="{{ e }}" {% if e == especie_sel %}selected{% endif %}>{{ e }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mt-3">
+            <canvas id="chartEdades"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINEA: SOLICITUDES POR DÍA (por estado) -->
+      <div class="col-12">
+        <div class="card p-3">
+          <h6 class="m-0">Solicitudes por día (últimos 30 días)</h6>
+          <canvas id="chartLine"></canvas>
+        </div>
+      </div>
+
+      <!-- BARRAS: PREFERENCIA POR ESPECIE -->
+      <div class="col-lg-6 col-12">
+        <div class="card p-3">
+          <h6 class="m-0">Mascotas por especie</h6>
+          <canvas id="chartEspecie"></canvas>
+        </div>
+      </div>
+
+      <!-- PIE: ADOPTADAS VS NO ADOPTADAS -->
+      <div class="col-lg-6 col-12">
+        <div class="card p-3">
+          <h6 class="m-0">Adopciones (estado final de mascotas)</h6>
+          <canvas id="chartAdoptadas"></canvas>
+        </div>
+      </div>
+
+      <!-- BARRAS: MACHO VS HEMBRA -->
+      <div class="col-12">
+        <div class="card p-3">
+          <h6 class="m-0">Mascotas por sexo</h6>
+          <canvas id="chartSexo"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // ------ Datos desde Django ------
+  const LABELS_FECHAS = {{ labels_fechas|safe }};
+  const ESTADOS = {{ estados|safe }};
+  const SERIES_POR_ESTADO = {{ series_por_estado|safe }};
+
+  const ADOPTADOS_LABELS = {{ adoptados_labels|safe }};
+  const ADOPTADOS_DATA   = {{ adoptados_data|safe }};
+
+  const SEXOS_LABELS = {{ sexos_labels|safe }};
+  const SEXOS_DATA   = {{ sexos_data|safe }};
+
+  const ESPECIE_LABELS = {{ especie_labels|safe }};
+  const ESPECIE_DATA   = {{ especie_data|safe }};
+
+  const BUCKET_LABELS = {{ bucket_labels|safe }};
+  const ESPECIES_DISTINTAS = {{ especies_distintas|safe }};
+  const EDADES_POR_ESPECIE = {{ edades_por_especie|safe }};
+  let especieSel = "{{ especie_sel }}";
+  let edadesDatasetActual = {{ edades_dataset_actual|safe }};
+
+  // helper para crear colores aleatorios consistentes por dataset
+  function rndColor(seed) {
+    // color HSL fijo por estado (seed), para que no cambie al refrescar
+    const hues = { "Pendiente": 210, "Aprobado": 140, "Rechazado": 0 };
+    const h = hues[seed] ?? Math.floor(Math.random()*360);
+    return `hsl(${h} 70% 50%)`;
+  }
+
+  // ------ Chart 1: Línea solicitudes por día (multi-serie) ------
+  const lineDatasets = ESTADOS.map(est => ({
+    label: est,
+    data: SERIES_POR_ESTADO[est],
+    borderColor: rndColor(est),
+    backgroundColor: rndColor(est),
+    fill: false,
+    tension: 0.2
+  }));
+
+  const chartLine = new Chart(document.getElementById('chartLine'), {
+    type: 'line',
+    data: {
+      labels: LABELS_FECHAS,
+      datasets: lineDatasets
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // ------ Chart 2: Barras por especie ------
+  new Chart(document.getElementById('chartEspecie'), {
+    type: 'bar',
+    data: {
+      labels: ESPECIE_LABELS,
+      datasets: [{
+        label: 'Cantidad',
+        data: ESPECIE_DATA
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+
+  // ------ Chart 3: Pie adoptadas vs no adoptadas ------
+  new Chart(document.getElementById('chartAdoptadas'), {
+    type: 'pie',
+    data: {
+      labels: ADOPTADOS_LABELS,
+      datasets: [{ data: ADOPTADOS_DATA }]
+    }
+  });
+
+  // ------ Chart 4: Barras Macho/Hembra ------
+  new Chart(document.getElementById('chartSexo'), {
+    type: 'bar',
+    data: {
+      labels: SEXOS_LABELS,
+      datasets: [{ label: 'Cantidad', data: SEXOS_DATA }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+
+  // ------ Chart 5: Edades por especie (con filtro select) ------
+  const ctxEdades = document.getElementById('chartEdades');
+  const chartEdades = new Chart(ctxEdades, {
+    type: 'bar',
+    data: {
+      labels: BUCKET_LABELS,
+      datasets: [{
+        label: `Edades (${especieSel})`,
+        data: edadesDatasetActual
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+
+  document.getElementById('filtroEspecie').addEventListener('change', (e) => {
+    especieSel = e.target.value;
+    const nuevos = EDADES_POR_ESPECIE[especieSel] || [0,0,0,0,0];
+    chartEdades.data.datasets[0].label = `Edades (${especieSel})`;
+    chartEdades.data.datasets[0].data = nuevos;
+    chartEdades.update();
+  });
+</script>
+{% endblock %}

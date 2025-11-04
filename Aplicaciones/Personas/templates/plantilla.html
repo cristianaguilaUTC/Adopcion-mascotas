@@ -71,12 +71,19 @@
                                         <span>Adopción</span>
                                     </a>
                                 </li>
+
+                                <li class="sidebar-item {% if request.path == '/adopciones/dashboard/' %}active{% endif %}">
+                                    <a href="{% url 'dashboard' %}" class="sidebar-link">
+                                      <i class="bi bi-graph-up"></i>
+                                      <span>Inteligencia de Negocios</span>
+                                    </a>
+                                  </li>
                                 {% else %}
                                 <!-- Para usuarios normales: Dashboard -->
                                 <li class="sidebar-item {% if request.path == '/dashboard/' %}active{% endif %}">
                                     <a href="{% url 'dashboard_usuario' %}" class='sidebar-link'>
                                         <i class="bi bi-house"></i>
-                                        <span>Mi Dashboard</span>
+                                        <span>Mi sitio</span>
                                     </a>
                                 </li>
                                 {% endif %}
