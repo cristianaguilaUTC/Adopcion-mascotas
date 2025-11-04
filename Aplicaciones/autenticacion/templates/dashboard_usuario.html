@@ -198,14 +198,14 @@
                     </div>
 
                     <div class="p-4">
-                        <!-- Estadísticas -->
+                        <!-- Estadísticas CORREGIDAS -->
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="stats-card">
                                     <div class="stats-icon icon-pets">
                                         <i class="fas fa-paw"></i>
                                     </div>
-                                    <h4 class="text-success">{{ mascotas|length }}</h4>
+                                    <h4 class="text-success">{{ mascotas_disponibles_count }}</h4>
                                     <p class="text-muted mb-0">Mascotas Disponibles</p>
                                 </div>
                             </div>
@@ -214,23 +214,23 @@
                                     <div class="stats-icon icon-requests">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
-                                    <h4 class="text-warning">{{ solicitudes|length }}</h4>
+                                    <h4 class="text-warning">{{ solicitudes_count }}</h4>
                                     <p class="text-muted mb-0">Mis Solicitudes</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Mascotas Disponibles -->
+                        <!-- Mascotas Disponibles - SOLO NO ADOPTADAS -->
                         <div class="mb-5">
                             <h3 class="section-title">
                                 <i class="fas fa-paw me-2"></i>Mascotas para Adopción
                             </h3>
                             
-                            {% if mascotas %}
+                            {% if mascotas_disponibles %}
                                 <div class="row">
-                                    {% for mascota in mascotas %}
+                                    {% for mascota in mascotas_disponibles %}
                                     <div class="col-lg-6 mb-3">
-                                        <div class="mascota-card {% if mascota.adoptado %}adoptada{% endif %}">
+                                        <div class="mascota-card">
                                             <div class="row align-items-center">
                                                 <div class="col-auto">
                                                     <div class="pet-avatar">
@@ -240,8 +240,8 @@
                                                 <div class="col">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <h5 class="mb-1">{{ mascota.nombre }}</h5>
-                                                        <span class="status-badge {% if mascota.adoptado %}badge-rechazada{% else %}badge-aprobada{% endif %}">
-                                                            {% if mascota.adoptado %}❌ Adoptada{% else %}✅ Disponible{% endif %}
+                                                        <span class="status-badge badge-aprobada">
+                                                            ✅ Disponible
                                                         </span>
                                                     </div>
                                                     <p class="text-muted mb-2">
@@ -249,16 +249,10 @@
                                                     </p>
                                                     <p class="mb-3">{{ mascota.descripcion|default:"Esta mascota está buscando un hogar amoroso."|truncatewords:15 }}</p>
                                                     
-                                                    {% if not mascota.adoptado %}
-                                                        <button class="btn btn-adoptar" 
-                                                                onclick="confirmarAdopcion('{{ mascota.nombre }}', '{% url 'nueva_solicitud_con_mascota' mascota.id %}')">
-                                                            <i class="fas fa-home me-2"></i>Solicitar Adopción
-                                                        </button>
-                                                    {% else %}
-                                                        <button class="btn btn-adoptar" disabled>
-                                                            <i class="fas fa-lock me-2"></i>No Disponible
-                                                        </button>
-                                                    {% endif %}
+                                                    <button class="btn btn-adoptar" 
+                                                            onclick="confirmarAdopcion('{{ mascota.nombre }}', '{% url 'nueva_solicitud_con_mascota' mascota.id %}')">
+                                                        <i class="fas fa-home me-2"></i>Solicitar Adopción
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -274,7 +268,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Mis Solicitudes -->
+                        <!-- Mis Solicitudes - CORREGIDOS LOS MENSAJES -->
                         <div class="mb-4">
                             <h3 class="section-title">
                                 <i class="fas fa-file-alt me-2"></i>Mis Solicitudes de Adopción
@@ -288,8 +282,13 @@
                                             <div class="d-flex justify-content-between align-items-start mb-2">
                                                 <h6 class="mb-1">{{ solicitud.mascota.nombre }} - {{ solicitud.mascota.especie }}</h6>
                                                 <span class="status-badge badge-{{ solicitud.estado|lower }}">
-                                                    {% if solicitud.estado == "Aprobada" %}✅{% elif solicitud.estado == "Pendiente" %}⏳{% else %}❌{% endif %}
-                                                    {{ solicitud.estado }}
+                                                    {% if solicitud.estado == "Aprobada" %}
+                                                        ✅ Aprobada
+                                                    {% elif solicitud.estado == "Pendiente" %}
+                                                        ⏳ Pendiente
+                                                    {% else %}
+                                                        ❌ Rechazada
+                                                    {% endif %}
                                                 </span>
                                             </div>
                                             <p class="text-muted mb-2">
@@ -300,17 +299,17 @@
                                             {% if solicitud.estado == "Aprobada" %}
                                                 <div class="alert alert-success mt-2 mb-0">
                                                     <i class="fas fa-check-circle me-2"></i>
-                                                    <strong>¡Felicidades!</strong> Tu solicitud fue aprobada. 🎉
+                                                    <strong>¡Felicidades! 🎉</strong> {{ solicitud.mascota.nombre }} ahora es tu mascota.
                                                 </div>
                                             {% elif solicitud.estado == "Rechazada" %}
                                                 <div class="alert alert-danger mt-2 mb-0">
                                                     <i class="fas fa-times-circle me-2"></i>
-                                                    Lo sentimos, esta solicitud no pudo ser aprobada.
+                                                    Lo sentimos, tu solicitud para {{ solicitud.mascota.nombre }} no fue aprobada.
                                                 </div>
                                             {% else %}
                                                 <div class="alert alert-warning mt-2 mb-0">
                                                     <i class="fas fa-clock me-2"></i>
-                                                    Tu solicitud está en revisión. Te notificaremos pronto.
+                                                    Tu solicitud para {{ solicitud.mascota.nombre }} está en revisión. Te notificaremos pronto.
                                                 </div>
                                             {% endif %}
                                         </div>
