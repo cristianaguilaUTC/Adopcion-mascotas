@@ -3,7 +3,7 @@ from .models import Persona
 
 def inicio_personas(request):
     personas = Persona.objects.all()
-    return render(request, 'Personas/inicio.html', {'personas': personas})
+    return render(request, 'inicio.html', {'personas': personas})
 
 def nueva_persona(request):
     if request.method == 'POST':
@@ -18,7 +18,7 @@ def nueva_persona(request):
         persona.save()
         return redirect('inicio_personas')
     
-    return render(request, 'Personas/nuevo_persona.html')
+    return render(request, 'nuevo_persona.html')
 
 def editar_persona(request, id):
     persona = get_object_or_404(Persona, id=id)
@@ -34,7 +34,7 @@ def editar_persona(request, id):
         persona.save()
         return redirect('inicio_personas')
     
-    return render(request, 'Personas/editar_persona.html', {
+    return render(request, 'editar_persona.html', {
         'persona': persona
     })
 
