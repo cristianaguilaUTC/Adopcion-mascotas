@@ -243,3 +243,125 @@ def dashboard(request):
         "edades_dataset_actual": edades_dataset_actual,
     }
     return render(request, "dashboard.html", context)
+
+
+
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
+import os
+from django.conf import settings
+
+@login_required
+def generar_certificado_adopcion(request, solicitud_id):
+    """Genera PDF del certificado de adopción"""
+    try:
+        # Verificar que la solicitud pertenece al usuario
+        persona_usuario = Persona.objects.get(usuario=request.user)
+        solicitud = get_object_or_404(SolicitudAdopcion, id=solicitud_id, persona=persona_usuario)
+        
+        # Solo permitir si está aprobada
+        if solicitud.estado != "Aprobada":
+            messages.error(request, "Solo puedes generar certificados para adopciones aprobadas")
+            return redirect('dashboard_usuario')
+        
+        # Crear respuesta PDF
+        response = HttpResponse(content_type='application/pdf')
+        filename = f"certificado_adopcion_{solicitud.mascota.nombre}_{solicitud.persona.nombre}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Crear PDF
+        p = canvas.Canvas(response, pagesize=letter)
+        width, height = letter
+        
+        # --- ENCABEZADO ---
+        p.setFont("Helvetica-Bold", 20)
+        p.drawString(100, height - 100, "🐕 CERTIFICADO DE ADOPCIÓN")
+        
+        # Línea decorativa
+        p.setStrokeColorRGB(0.2, 0.6, 0.8)
+        p.setLineWidth(2)
+        p.line(100, height - 120, width - 100, height - 120)
+        
+        # --- INFORMACIÓN DE LA MASCOTA ---
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, height - 160, "INFORMACIÓN DE LA MASCOTA:")
+        
+        p.setFont("Helvetica", 12)
+        y_position = height - 190
+        info_mascota = [
+            f"Nombre: {solicitud.mascota.nombre}",
+            f"Especie: {solicitud.mascota.especie}",
+            f"Raza: {solicitud.mascota.raza or 'Mixta'}",
+            f"Edad: {solicitud.mascota.edad} años",
+            f"Sexo: {solicitud.mascota.sexo}",
+            f"Descripción: {solicitud.mascota.descripcion or 'Sin descripción adicional'}",
+            f"Fecha de Rescate: {solicitud.mascota.fecha_rescate or 'No especificada'}"
+        ]
+        
+        for info in info_mascota:
+            p.drawString(120, y_position, info)
+            y_position -= 25
+        
+        # --- INFORMACIÓN DEL ADOPTANTE ---
+        y_position -= 20
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, y_position, "INFORMACIÓN DEL ADOPTANTE:")
+        
+        p.setFont("Helvetica", 12)
+        y_position -= 30
+        info_adoptante = [
+            f"Nombre: {solicitud.persona.nombre} {solicitud.persona.apellido}",
+            f"Cédula: {solicitud.persona.cedula}",
+            f"Correo: {solicitud.persona.correo}",
+            f"Teléfono: {solicitud.persona.telefono or 'No registrado'}",
+            f"Dirección: {solicitud.persona.direccion}"
+        ]
+        
+        for info in info_adoptante:
+            p.drawString(120, y_position, info)
+            y_position -= 25
+        
+        # --- DETALLES DE LA ADOPCIÓN ---
+        y_position -= 20
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, y_position, "DETALLES DE LA ADOPCIÓN:")
+        
+        p.setFont("Helvetica", 12)
+        y_position -= 30
+        info_adopcion = [
+            f"Fecha de Solicitud: {solicitud.fecha_solicitud.strftime('%d/%m/%Y')}",
+            f"Estado: {solicitud.estado}",
+            f"Motivo de Adopción: {solicitud.motivo}"
+        ]
+        
+        for info in info_adopcion:
+            p.drawString(120, y_position, info)
+            y_position -= 25
+        
+        # --- FIRMA Y MENSAJE ---
+        y_position -= 40
+        p.setFont("Helvetica-Oblique", 10)
+        p.drawString(100, y_position, "Este documento certifica la adopción responsable de la mascota.")
+        y_position -= 20
+        p.drawString(100, y_position, "¡Gracias por darle un hogar amoroso!")
+        
+        # Firma
+        y_position -= 60
+        p.line(100, y_position, 250, y_position)
+        p.setFont("Helvetica", 10)
+        p.drawString(100, y_position - 15, "Firma del Sistema de Adopción")
+        
+        p.showPage()
+        p.save()
+        
+        return response
+        
+    except Persona.DoesNotExist:
+        messages.error(request, "Perfil de usuario no encontrado")
+        return redirect('dashboard_usuario')
+    except SolicitudAdopcion.DoesNotExist:
+        messages.error(request, "Solicitud no encontrada")
+        return redirect('dashboard_usuario')

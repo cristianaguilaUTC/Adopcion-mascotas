@@ -168,6 +168,22 @@
             padding-bottom: 15px;
             border-bottom: 3px solid var(--light);
         }
+        .btn-pdf {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border: none;
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-size: 0.8rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -291,6 +307,14 @@
                                                         ❌ Rechazado
                                                     {% endif %}
                                                 </span>
+                                                <!-- ✅ BOTÓN PDF SOLO PARA ADOPCIONES APROBADAS -->
+                                                {% if solicitud.estado == "Aprobada" %}
+                                                <a href="{% url 'generar_certificado' solicitud.id %}" class="btn btn-danger btn-sm" 
+                                                title="Descargar Certificado de Adopción">
+                                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                                </a>
+                                                {% endif %}
+
                                             </div>
                                             <p class="text-muted mb-2">
                                                 <small><i class="fas fa-calendar me-1"></i>Solicitado: {{ solicitud.fecha_solicitud|date:"d/m/Y" }}</small>

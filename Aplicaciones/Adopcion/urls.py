@@ -8,4 +8,5 @@ urlpatterns = [
     path('editar/<int:id>/', views.editar_solicitud, name='editar_solicitud'),
     path('eliminar/<int:id>/', views.eliminar_solicitud, name='eliminar_solicitud'),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path('certificado/<int:solicitud_id>/', views.generar_certificado_adopcion, name='generar_certificado'),
 ]
