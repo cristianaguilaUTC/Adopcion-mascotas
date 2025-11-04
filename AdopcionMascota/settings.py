@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'AdopcionMascota.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'adopcion_mascotas',
         'USER': 'postgres', 
         'PASSWORD': 'aiypwzqp',
@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ec'
 
 TIME_ZONE = 'UTC'
 
