@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solicitudes de Adopción</title>
+    <style>
+        .btn {
+            padding: 5px 10px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 2px;
+            display: inline-block;
+        }
+        .btn-editar {
+            background-color: #ffc107;
+        }
+        .btn-eliminar {
+            background-color: #dc3545;
+        }
+        .btn-agregar {
+            background-color: #28a745;
+            padding: 8px 15px;
+            margin-bottom: 10px;
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        function confirmarEliminacion(persona, mascota) {
+            return confirm('¿Estás seguro de que quieres eliminar la solicitud de ' + persona + ' para ' + mascota + '?');
+        }
+    </script>
+</head>
+<body>
+    <h1>📋 Solicitudes de Adopción</h1>
+    
+    <a href="{% url 'nueva_solicitud' %}" class="btn btn-agregar">Nueva Solicitud</a>
+    
+    {% if solicitudes %}
+    <table>
+        <thead>
+            <tr>
+                <th>Persona</th>
+                <th>Mascota</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+                <th>Acciones</th>  <!-- COLUMNA ACCIONES -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td>{{ solicitud.persona.nombre }} {{ solicitud.persona.apellido }}</td>
+                <td>{{ solicitud.mascota.nombre }} ({{ solicitud.mascota.especie }})</td>
+                <td>{{ solicitud.fecha_solicitud|date:"d/m/Y" }}</td>
+                <td>{{ solicitud.estado }}</td>
+                <td>{{ solicitud.motivo }}</td>
+                <td>
+                    <!-- BOTONES DE ACCIONES -->
+                    <a href="{% url 'editar_solicitud' solicitud.id %}" class="btn btn-editar">Editar</a>
+                    <a href="{% url 'eliminar_solicitud' solicitud.id %}" class="btn btn-eliminar" 
+                       onclick="return confirmarEliminacion('{{ solicitud.persona.nombre }}', '{{ solicitud.mascota.nombre }}')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay solicitudes de adopción registradas.</p>
+    {% endif %}
+    
+    <br>
+    <div>
+        <a href="{% url 'inicio' %}">🐕 Ver Mascotas</a> | 
+        <a href="{% url 'inicio_personas' %}">👥 Ver Personas</a>
+    </div>
+</body>
+</html>

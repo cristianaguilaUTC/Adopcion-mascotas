@@ -5,7 +5,7 @@ from Aplicaciones.Personas.models import Persona
 def inicio(request):
     # Mostrar todas las mascotas
     mascotas = Mascota.objects.all()
-    return render(request, 'inicio.html', {'mascotas': mascotas})
+    return render(request, 'inicio_mascotas.html', {'mascotas': mascotas})
 
 def nueva_mascota(request):
     # Obtener todas las personas para el dueño

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nueva Solicitud de Adopción</title>
+    <style>
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+            margin: 5px;
+        }
+        .btn-guardar {
+            background-color: #28a745;
+        }
+        .btn-cancelar {
+            background-color: #6c757d;
+        }
+        form p {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+        input, select, textarea {
+            padding: 5px;
+            width: 300px;
+        }
+        textarea {
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nueva Solicitud de Adopción</h1>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <p>
+            <label>Persona:</label>
+            <select name="persona" required>
+                <option value="">Seleccionar persona</option>
+                {% for persona in personas %}
+                    <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        
+        <p>
+            <label>Mascota:</label>
+            <select name="mascota" required>
+                <option value="">Seleccionar mascota</option>
+                {% for mascota in mascotas %}
+                    <option value="{{ mascota.id }}">{{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        
+        <p>
+            <label>Motivo:</label><br>
+            <textarea name="motivo" placeholder="Explique por qué quiere adoptar esta mascota..."></textarea>
+        </p>
+        
+        <button type="submit" class="btn btn-guardar">Guardar Solicitud</button>
+        <a href="{% url 'inicio_adopciones' %}" class="btn btn-cancelar">Cancelar</a>
+    </form>
+</body>
+</html>
