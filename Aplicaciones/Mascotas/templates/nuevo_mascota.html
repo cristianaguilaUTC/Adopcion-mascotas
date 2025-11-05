@@ -2,24 +2,15 @@
 
 {% block title %}Nueva Mascota{% endblock %}
 
-{% block extra_head %}
-<style>
-    .form-container {
-        max-width: 650px;
-        margin: 0 auto;
-    }
-</style>
-{% endblock %}
-
 {% block contenido %}
 <div class="page-heading">
     <h3 class="text-center mb-4">Agregar Nueva Mascota</h3>
 </div>
 
 <section class="section">
-    <div class="card shadow p-4 form-container">
+    <div class="card shadow p-4">
         <div class="card-body">
-            <form id="formMascota" method="POST"  enctype="multipart/form-data" novalidate>
+            <form id="formMascota" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
 
                 <div class="mb-3">
@@ -71,11 +62,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="dueño" class="form-label">Dueño:</label>
-                    <select class="form-select" id="dueño" name="dueño">
+                    <label for="dueno" class="form-label">Dueño:</label>
+                    <select class="form-select" id="dueno" name="dueno">
                         <option value="">Seleccionar dueño</option>
                         {% for persona in personas %}
-                            <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
+                        <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -108,51 +99,73 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function () {
-    const razasPorEspecie = {
-        "Canina": ["Labrador Retriever", "Pastor Alemán", "Bulldog", "Golden Retriever", "Beagle", "Chihuahua", "Poodle", "Rottweiler", "Boxer", "Dálmata"],
-        "Felina": ["Persa", "Siamés", "Maine Coon", "Bengalí", "Esfinge", "Angora", "British Shorthair", "Abisinio"],
-        "Aviar": ["Perico", "Canario", "Loro", "Agapornis", "Cacatúa"],
-        "Reptil": ["Iguana", "Serpiente", "Tortuga", "Camaleón"]
-    };
+    $(document).ready(function () {
+        const razasPorEspecie = {
+            "Canina": ["Labrador Retriever", "Pastor Alemán", "Bulldog", "Golden Retriever", "Beagle", "Chihuahua", "Poodle", "Rottweiler", "Boxer", "Dálmata"],
+            "Felina": ["Persa", "Siamés", "Maine Coon", "Bengalí", "Esfinge", "Angora", "British Shorthair", "Abisinio"],
+            "Aviar": ["Perico", "Canario", "Loro", "Agapornis", "Cacatúa"],
+            "Reptil": ["Iguana", "Serpiente", "Tortuga", "Camaleón"]
+        };
 
-    $("#especie").change(function() {
-        const especie = $(this).val();
-        const razaSelect = $("#raza");
+        $("#especie").change(function () {
+            const especie = $(this).val();
+            const razaSelect = $("#raza");
 
-        razaSelect.empty();
-        if (razasPorEspecie[especie]) {
-            razaSelect.prop("disabled", false);
-            razaSelect.append('<option value="">Seleccione una raza...</option>');
-            razasPorEspecie[especie].forEach(raza => {
-                razaSelect.append(`<option value="${raza}">${raza}</option>`);
-            });
-        } else if (especie === "Otro") {
-            $("#grupoRaza").html(`
+            razaSelect.empty();
+            if (razasPorEspecie[especie]) {
+                razaSelect.prop("disabled", false);
+                razaSelect.append('<option value="">Seleccione una raza...</option>');
+                razasPorEspecie[especie].forEach(raza => {
+                    razaSelect.append(`<option value="${raza}">${raza}</option>`);
+                });
+            } else if (especie === "Otro") {
+                $("#grupoRaza").html(`
                 <label for="raza" class="form-label">Raza:</label>
                 <input type="text" class="form-control" id="raza" name="raza" placeholder="Ingrese la raza o tipo">
             `);
-        } else {
-            razaSelect.append('<option value="">Seleccione una especie primero</option>');
-        }
-    });
+            } else {
+                razaSelect.append('<option value="">Seleccione una especie primero</option>');
+            }
+        });
 
-    $("#formMascota").validate({
-        rules: {
-            nombre: { required: true, minlength: 2 },
-            especie: { required: true },
-            raza: { required: true },
-            edad: { required: true, digits: true },
-            sexo: { required: true }
-        },
-        messages: {
-            nombre: { required: "Ingrese el nombre de la mascota" },
-            especie: { required: "Seleccione una especie" },
-            raza: { required: "Seleccione o escriba una raza" },
-            edad: { required: "Ingrese la edad" },
-            sexo: { required: "Seleccione el sexo" }
-        }
+        $("#formMascota").validate({
+            rules: {
+                nombre: { required: true, minlength: 2 },
+                especie: { required: true },
+                raza: { required: true },
+                edad: { required: true, digits: true },
+                sexo: { required: true }
+            },
+            messages: {
+                nombre: { required: "Ingrese el nombre de la mascota", minlength: "Nombre muy corto" },
+                especie: { required: "Seleccione una especie" },
+                raza: { required: "Seleccione o escriba una raza" },
+                edad: { required: "Ingrese la edad", digits: "Sólo números" },
+                sexo: { required: "Seleccione el sexo" }
+            },
+            errorElement: "div",
+            errorClass: "invalid-feedback d-block",
+            highlight: function (element) {
+                var $el = $(element);
+                $el.addClass("is-invalid");
+                if ($el.is("select")) $el.addClass("is-invalid");
+            },
+            unhighlight: function (element) {
+                var $el = $(element);
+                $el.removeClass("is-invalid");
+            },
+            errorPlacement: function (error, element) {
+                if (element.prop("type") === "file") {
+                    error.insertAfter(element);
+                } else if (element.is("select")) {
+                    error.insertAfter(element);
+                } else if (element.closest('.input-group').length) {
+                    error.insertAfter(element.closest('.input-group'));
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+        });
     });
-});
 </script>
 {% endblock %}

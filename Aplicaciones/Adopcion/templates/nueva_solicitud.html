@@ -27,7 +27,7 @@
                     <select class="form-select" id="persona" name="persona" required>
                         <option value="">Seleccionar persona...</option>
                         {% for persona in personas %}
-                            <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
+                        <option value="{{ persona.id }}">{{ persona.nombre }} {{ persona.apellido }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -37,7 +37,8 @@
                     <select class="form-select" id="mascota" name="mascota" required>
                         <option value="">Seleccionar mascota...</option>
                         {% for mascota in mascotas %}
-                            <option value="{{ mascota.id }}">{{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza }}</option>
+                        <option value="{{ mascota.id }}">{{ mascota.nombre }} ({{ mascota.especie }}) - {{ mascota.raza
+                            }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -64,28 +65,39 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function () {
-    $("#formAdopcion").validate({
-        rules: {
-            persona: { required: true },
-            mascota: { required: true },
-            motivo: { required: true, minlength: 10, maxlength: 500 }
-        },
-        messages: {
-            persona: { required: "Debe seleccionar una persona." },
-            mascota: { required: "Debe seleccionar una mascota." },
-            motivo: {
-                required: "Debe ingresar un motivo.",
-                minlength: "Debe tener mínimo 10 caracteres.",
-                maxlength: "No debe exceder 500 caracteres."
+    $(document).ready(function () {
+        $("#formAdopcion").validate({
+            rules: {
+                persona: { required: true },
+                mascota: { required: true },
+                motivo: { required: true, minlength: 10, maxlength: 500 }
+            },
+            messages: {
+                persona: { required: "Debe seleccionar una persona." },
+                mascota: { required: "Debe seleccionar una mascota." },
+                motivo: {
+                    required: "Debe ingresar un motivo.",
+                    minlength: "Debe tener mínimo 10 caracteres.",
+                    maxlength: "No debe exceder 500 caracteres."
+                }
+            },
+            errorElement: "div",
+            errorClass: "invalid-feedback d-block", // usa Bootstrap para texto en rojo
+            highlight: function (element) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function (element) {
+                $(element).removeClass("is-invalid").addClass("is-valid");
+            },
+            errorPlacement: function (error, element) {
+                // colocar mensaje justo después del control (compatible con selects y textareas)
+                if (element.prop("type") === "checkbox") {
+                    error.insertAfter(element.closest(".form-check"));
+                } else {
+                    error.insertAfter(element);
+                }
             }
-        },
-        errorClass: "is-invalid",
-        errorPlacement: function (error, element) {
-            error.appendTo(element.parent());
-        }
+        });
     });
-});
 </script>
 {% endblock %}
-

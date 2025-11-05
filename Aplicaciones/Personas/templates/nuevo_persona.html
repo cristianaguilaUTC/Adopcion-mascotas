@@ -2,22 +2,13 @@
 
 {% block title %}Nueva Persona{% endblock %}
 
-{% block extra_head %}
-<style>
-    .form-container {
-        max-width: 650px;
-        margin: 0 auto;
-    }
-</style>
-{% endblock %}
-
 {% block contenido %}
 <div class="page-heading">
     <h3 class="text-center mb-4">Registrar Nueva Persona</h3>
 </div>
 
 <section class="section">
-    <div class="card shadow p-4 form-container">
+    <div class="card shadow p-4">
         <div class="card-body">
             <form id="formPersona" method="POST" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
@@ -59,7 +50,8 @@
 
                 <div class="mb-3">
                     <label for="documento_pdf" class="form-label">Documento PDF:</label>
-                    <input type="file" class="form-control" id="documento_pdf" name="documento_pdf" accept="application/pdf">
+                    <input type="file" class="form-control" id="documento_pdf" name="documento_pdf"
+                        accept="application/pdf">
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
@@ -78,26 +70,47 @@
 
 {% block extra_js %}
 <script>
-$(document).ready(function () {
-    $("#formPersona").validate({
-        rules: {
-            nombre: { required: true, minlength: 3 },
-            apellido: { required: true, minlength: 3 },
-            cedula: { required: true, digits: true, minlength: 10, maxlength: 10 },
-            correo: { required: true, email: true },
-            telefono: { digits: true, minlength: 7, maxlength: 10 },
-            direccion: { required: true, minlength: 5 }
-        },
-        messages: {
-            nombre: { required: "Ingrese el nombre", minlength: "Debe tener al menos 3 caracteres" },
-            apellido: { required: "Ingrese el apellido", minlength: "Debe tener al menos 3 caracteres" },
-            cedula: { required: "Ingrese la cédula", digits: "Solo números", minlength: "Debe tener 10 dígitos", maxlength: "Debe tener 10 dígitos" },
-            correo: { required: "Ingrese el correo", email: "Correo inválido" },
-            telefono: { digits: "Solo números", minlength: "Mínimo 7 dígitos", maxlength: "Máximo 10 dígitos" },
-            direccion: { required: "Ingrese la dirección", minlength: "Dirección demasiado corta" }
-        }
+    $(document).ready(function () {
+        $("#formPersona").validate({
+            rules: {
+                nombre: { required: true, minlength: 3 },
+                apellido: { required: true, minlength: 3 },
+                cedula: { required: true, digits: true, minlength: 10, maxlength: 10 },
+                correo: { required: true, email: true },
+                telefono: { digits: true, minlength: 7, maxlength: 10 },
+                direccion: { required: true, minlength: 5 }
+            },
+            messages: {
+                nombre: { required: "Ingrese el nombre", minlength: "Debe tener al menos 3 caracteres" },
+                apellido: { required: "Ingrese el apellido", minlength: "Debe tener al menos 3 caracteres" },
+                cedula: { required: "Ingrese la cédula", digits: "Solo números", minlength: "Debe tener 10 dígitos", maxlength: "Debe tener 10 dígitos" },
+                correo: { required: "Ingrese el correo", email: "Correo inválido" },
+                telefono: { digits: "Solo números", minlength: "Mínimo 7 dígitos", maxlength: "Máximo 10 dígitos" },
+                direccion: { required: "Ingrese la dirección", minlength: "Dirección demasiado corta" }
+            },
+            errorElement: "div",
+            errorClass: "invalid-feedback d-block",
+            highlight: function (element) {
+                var $el = $(element);
+                $el.addClass("is-invalid");
+                // no añadir iconos ni clases de valid (solo is-invalid)
+                if ($el.is("select")) $el.addClass("is-invalid");
+            },
+            unhighlight: function (element) {
+                var $el = $(element);
+                $el.removeClass("is-invalid");
+                // no añadir is-valid ni iconos
+                if ($el.is("select")) $el.removeClass("is-invalid");
+            },
+            errorPlacement: function (error, element) {
+                // insertar mensaje simple después del control (Bootstrap)
+                if (element.prop("type") === "file") {
+                    error.insertAfter(element);
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+        });
     });
-});
 </script>
 {% endblock %}
-
