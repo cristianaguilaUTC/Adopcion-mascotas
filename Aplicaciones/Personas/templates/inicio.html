@@ -1,6 +1,5 @@
 {% extends 'plantilla.html' %}
 {% load static %}
-{% block title %}Personas{% endblock %}
 
 {% block contenido %}
 <div class="container mt-4">
@@ -14,7 +13,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table id="tablaPersonas" class="table table-striped" style="width:100%">
                     <thead class="table-light">
                         <tr>
                             <th>Nombre</th>
@@ -39,33 +38,33 @@
                             <td>{{ persona.direccion }}</td>
                             <td>
                                 {% if persona.foto %}
-                                    <img src="{{ persona.foto.url }}" alt="Foto de {{ persona.nombre }}" 
-                                         class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="{{ persona.foto.url }}" alt="Foto" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                 {% else %}
                                     <span class="text-muted">Sin foto</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if persona.documento_pdf %}
-                                    <a href="{{ persona.documento_pdf.url }}" target="_blank" class="btn btn-outline-info btn-sm">
-                                        Ver PDF
-                                    </a>
+                                    <a href="{{ persona.documento_pdf.url }}" target="_blank" class="btn btn-outline-info btn-sm">Ver PDF</a>
                                 {% else %}
                                     <span class="text-muted">Sin documento</span>
                                 {% endif %}
                             </td>
-                                                <td class="text-center">
+                            <td class="text-center">
                                 <a href="{% url 'editar_persona' persona.id %}" class="btn btn-warning btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
-                                <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ persona.id }}', '{{ persona.nombre }}')">
+                                <br>
+                                <br>
+                                <button type="button" class="btn btn-danger btn-sm" 
+                                        onclick="eliminarPersona({{ persona.id }}, '{{ persona.nombre }}', '{{ persona.apellido }}')">
                                     <i class="bi bi-trash-fill"></i> Eliminar
                                 </button>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay personas registradas.</td>
+                            <td colspan="9" class="text-center text-muted">No hay personas registradas.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -73,30 +72,137 @@
             </div>
         </div>
     </div>
-
-   
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- FORMULARIO OCULTO PARA ELIMINAR -->
+<form id="formEliminar" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="id" id="idPersonaEliminar">
+</form>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+<!-- DataTables JavaScript -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+<!-- Botones de Exportación -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
 <script>
-function confirmarEliminacion(id, nombre) {
+
+
+$(document).ready(function() {
+    $('#tablaPersonas').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        "responsive": true,
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        "order": [[0, 'asc']],
+        "searching": true,
+        "info": true,
+        "paging": true,
+        "dom": 'Bfrtip',
+        "buttons": [
+            {
+                extend: 'copy',
+                text: '<i class="bi bi-files"></i> Copiar',
+                className: 'btn btn-secondary btn-sm',
+                exportOptions: {
+                    columns: ':not(:last-child)'
+                }
+            },
+            {
+                extend: 'excel',
+                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                className: 'btn btn-success btn-sm',
+                exportOptions: {
+                    columns: ':not(:last-child)'
+                }
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                className: 'btn btn-danger btn-sm',
+                exportOptions: {
+                    columns: ':not(:last-child)'
+                },
+                customize: function (doc) {
+                    doc.content[1].table.widths = 
+                        Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="bi bi-printer"></i> Imprimir',
+                className: 'btn btn-info btn-sm',
+                exportOptions: {
+                    columns: ':not(:last-child)'
+                },
+                customize: function (win) {
+                    $(win.document.body).find('table').addClass('display').css('font-size', '12px');
+                    $(win.document.body).find('tr:nth-child(odd) td').each(function(index){
+                        $(this).css('background-color','#F9F9F9');
+                    });
+                    $(win.document.body).find('tr:nth-child(even) td').each(function(index){
+                        $(this).css('background-color','#FFFFFF');
+                    });
+                }
+            }
+        ],
+        "columnDefs": [
+            {
+                "targets": -1, 
+                "orderable": false,
+                "searchable": false
+            },
+            {
+                "targets": [7, 8], 
+                "orderable": false,
+                "searchable": false
+            }
+        ]
+    });
+});
+
+function eliminarPersona(id, nombre, apellido) {
+    document.getElementById('idPersonaEliminar').value = id;
+    const form = document.getElementById('formEliminar');
+    form.action = `/personas/eliminar/${id}/`;
+    
     Swal.fire({
-        title: '¿Eliminar Persona?',
-        text: `¿Seguro que deseas eliminar a ${nombre}?`,
+        title: 'Confirmar Eliminación',
+        html: `¿Está seguro que desea eliminar a <strong>${nombre} ${apellido}</strong>?<br><br>
+               <span class="text-danger">Esta acción no se puede deshacer.</span>`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        focusCancel: true,
+        customClass: {
+            confirmButton: 'btn btn-danger',
+            cancelButton: 'btn btn-secondary'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Redirige al URL de eliminación
-            window.location.href = `/personas/eliminar/${id}/`;
+            form.submit();
         }
     });
 }
 </script>
 {% endblock %}
-

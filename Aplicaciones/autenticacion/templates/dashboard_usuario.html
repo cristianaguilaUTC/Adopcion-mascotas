@@ -4,7 +4,6 @@
 
 {% block contenido %}
 
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -82,8 +81,7 @@
                             <div class="me-3 user-avatar">👤</div>
                             <div class="flex-grow-1">
                                 <h5 class="mb-0">¡Hola, {{ persona.nombre }} {{ persona.apellido }}!</h5>
-                                <small class="text-muted">{{ persona.correo }} • {{ persona.telefono|default:"No
-                                    registrado" }}</small>
+                                <small class="text-muted">{{ persona.correo }} • {{ persona.telefono|default:"No registrado" }}</small>
                             </div>
                             <div>
                                 <button class="btn btn-outline-secondary btn-sm" onclick="confirmarSalida()">
@@ -135,16 +133,12 @@
                                                     <div>
                                                         <h6 class="mb-1">{{ mascota.nombre }}</h6>
                                                         <small class="text-muted">
-                                                            <strong>{{ mascota.especie }}</strong> • {{
-                                                            mascota.raza|default:"Raza mixta" }} • {{ mascota.edad }}
-                                                            años • {{ mascota.sexo }}
+                                                            <strong>{{ mascota.especie }}</strong> • {{ mascota.raza|default:"Raza mixta" }} • {{ mascota.edad }} años • {{ mascota.sexo }}
                                                         </small>
                                                     </div>
                                                     <span class="badge bg-success align-self-start">Disponible</span>
                                                 </div>
-                                                <p class="mb-2 mt-2 text-muted small">{{
-                                                    mascota.descripcion|default:"Esta mascota está buscando un hogar
-                                                    amoroso."|truncatewords:15 }}</p>
+                                                <p class="mb-2 mt-2 text-muted small">{{ mascota.descripcion|default:"Esta mascota está buscando un hogar amoroso."|truncatewords:15 }}</p>
                                                 <button class="btn btn-primary btn-sm btn-adoptar"
                                                     onclick="confirmarAdopcion('{{ mascota.nombre|escapejs }}', '{% url 'nueva_solicitud_con_mascota' mascota.id %}')">
                                                     Solicitar adopción
@@ -170,8 +164,7 @@
                                 {% for solicitud in solicitudes %}
                                 <div class="list-group-item">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">{{ solicitud.mascota.nombre }} - {{ solicitud.mascota.especie
-                                            }}</h6>
+                                        <h6 class="mb-1">{{ solicitud.mascota.nombre }} - {{ solicitud.mascota.especie }}</h6>
                                         {% if solicitud.estado == "Aprobado" %}
                                         <span class="badge bg-success">Aprobada</span>
                                         {% elif solicitud.estado == "Pendiente" %}
@@ -180,19 +173,18 @@
                                         <span class="badge bg-danger">Rechazada</span>
                                         {% endif %}
                                     </div>
-                                    <small class="text-muted">Solicitado: {{ solicitud.fecha_solicitud|date:"d/m/Y"
-                                        }}</small>
+                                    <small class="text-muted">Solicitado: {{ solicitud.fecha_solicitud|date:"d/m/Y" }}</small>
                                     <p class="mb-1 mt-2"><strong>Motivo:</strong> {{ solicitud.motivo }}</p>
 
                                     {% if solicitud.estado == "Aprobado" %}
-                                    <div class="alert alert-success py-2 mb-0">¡Felicidades! {{ solicitud.mascota.nombre
-                                        }} ahora es tu mascota.
-                                        <a href="{% url 'generar_certificado' solicitud.id %}"
-                                            class="btn btn-danger btn-sm ms-2">PDF</a>
+                                    <div class="alert alert-success py-2 mb-0">
+                                        ¡Felicidades! <strong>{{ solicitud.mascota.nombre }}</strong> ahora es tu mascota.
+                                        <a href="{% url 'generar_certificado' solicitud.id %}" class="btn btn-danger btn-sm ms-2">
+                                            Descargar PDF
+                                        </a>
                                     </div>
                                     {% elif solicitud.estado == "Rechazado" %}
-                                    <div class="alert alert-danger py-2 mb-0">Lo sentimos, tu solicitud no fue aprobada.
-                                    </div>
+                                    <div class="alert alert-danger py-2 mb-0">Lo sentimos, tu solicitud no fue aprobada.</div>
                                     {% else %}
                                     <div class="alert alert-warning py-2 mb-0">Tu solicitud está en revisión.</div>
                                     {% endif %}

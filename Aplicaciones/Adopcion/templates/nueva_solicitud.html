@@ -1,15 +1,5 @@
 {% extends 'plantilla.html' %}
 
-{% block title %}Nueva Solicitud de Adopción{% endblock %}
-
-{% block extra_head %}
-<style>
-    .form-container {
-        max-width: 650px;
-        margin: 0 auto;
-    }
-</style>
-{% endblock %}
 
 {% block contenido %}
 <div class="page-heading">
@@ -68,21 +58,33 @@
     $(document).ready(function () {
         $("#formAdopcion").validate({
             rules: {
-                persona: { required: true },
-                mascota: { required: true },
-                motivo: { required: true, minlength: 10, maxlength: 500 }
+                persona: { 
+                    required: true 
+                },
+                mascota: { 
+                    required: true 
+                },
+                motivo: { 
+                    required: true, 
+                    minlength: 10, 
+                    maxlength: 500 
+                }
             },
             messages: {
-                persona: { required: "Debe seleccionar una persona." },
-                mascota: { required: "Debe seleccionar una mascota." },
+                persona: { 
+                    required: "Debe seleccionar una persona." 
+                },
+                mascota: { 
+                    required: "Debe seleccionar una mascota." 
+                },
                 motivo: {
                     required: "Debe ingresar un motivo.",
-                    minlength: "Debe tener mínimo 10 caracteres.",
-                    maxlength: "No debe exceder 500 caracteres."
+                    minlength: "El motivo debe tener al menos 10 caracteres.",
+                    maxlength: "El motivo no debe exceder los 500 caracteres."
                 }
             },
             errorElement: "div",
-            errorClass: "invalid-feedback d-block", // usa Bootstrap para texto en rojo
+            errorClass: "invalid-feedback d-block",
             highlight: function (element) {
                 $(element).addClass("is-invalid").removeClass("is-valid");
             },
@@ -90,12 +92,43 @@
                 $(element).removeClass("is-invalid").addClass("is-valid");
             },
             errorPlacement: function (error, element) {
-                // colocar mensaje justo después del control (compatible con selects y textareas)
                 if (element.prop("type") === "checkbox") {
                     error.insertAfter(element.closest(".form-check"));
                 } else {
                     error.insertAfter(element);
                 }
+            },
+            submitHandler: function(form) {
+                // Opcional: Mostrar mensaje de éxito antes de enviar
+                Swal.fire({
+                    title: 'Enviando solicitud...',
+                    text: 'Por favor espere',
+                    icon: 'info',
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+                form.submit();
+            }
+        });
+
+        // Opcional: Validación en tiempo real para el textarea
+        $('#motivo').on('input', function() {
+            var length = $(this).val().length;
+            if (length < 10) {
+                $(this).addClass('is-invalid').removeClass('is-valid');
+            } else if (length <= 500) {
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } else {
+                $(this).addClass('is-invalid').removeClass('is-valid');
+            }
+        });
+
+        // Validación para selects
+        $('#persona, #mascota').on('change', function() {
+            if ($(this).val() === "") {
+                $(this).addClass('is-invalid').removeClass('is-valid');
+            } else {
+                $(this).removeClass('is-invalid').addClass('is-valid');
             }
         });
     });

@@ -12,7 +12,7 @@ class Mascota(models.Model):
     edad = models.PositiveIntegerField()
     sexo = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
-    fecha_rescate = models.DateField(blank=True, null=True)
+    fecha_rescate = models.DateField(auto_now_add=True)
     adoptado = models.BooleanField(default=False)
     dueño = models.ForeignKey(Persona, on_delete=models.SET_NULL, null=True, blank=True, related_name='mascotas')
     foto = models.ImageField(upload_to='fotos_mascotas/', blank=True, null=True)

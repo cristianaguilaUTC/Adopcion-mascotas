@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Sistema de Adopción</title>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 
     <style>
         body {
@@ -49,6 +56,9 @@
             border-color: #667eea;
             outline: none;
         }
+        input.error {
+            border-color: #dc3545;
+        }
         .btn-register {
             width: 100%;
             padding: 12px;
@@ -68,13 +78,11 @@
             text-align: center;
             margin-top: 20px;
         }
-        .error-message {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+        .error {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            display: block;
         }
     </style>
 </head>
@@ -82,13 +90,16 @@
     <div class="register-container">
         <div class="register-title">📝 Registro de Usuario</div>
         
+        <!-- Mensajes ocultos para SweetAlert2 -->
         {% if messages %}
+        <div style="display:none">
             {% for message in messages %}
-                <div class="error-message">{{ message }}</div>
+            <span class="django-message" data-tags="{{ message.tags }}" data-text="{{ message|escapejs }}"></span>
             {% endfor %}
+        </div>
         {% endif %}
         
-        <form method="POST">
+        <form method="POST" id="registroForm">
             {% csrf_token %}
             <div class="form-group">
                 <label>Usuario:</label>
@@ -137,5 +148,124 @@
             <a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            // Configurar validación
+            $("#registroForm").validate({
+                rules: {
+                    username: {
+                        required: true,
+                        minlength: 3
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    nombre: {
+                        required: true,
+                        minlength: 2
+                    },
+                    apellido: {
+                        required: true,
+                        minlength: 2
+                    },
+                    cedula: {
+                        required: true,
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 10
+                    },
+                    correo: {
+                        required: true,
+                        email: true
+                    },
+                    telefono: {
+                        digits: true,
+                        minlength: 7,
+                        maxlength: 10
+                    },
+                    direccion: {
+                        required: true,
+                        minlength: 5
+                    }
+                },
+                messages: {
+                    username: {
+                        required: "El usuario es obligatorio",
+                        minlength: "Mínimo 3 caracteres"
+                    },
+                    password: {
+                        required: "La contraseña es obligatoria",
+                        minlength: "Mínimo 6 caracteres"
+                    },
+                    nombre: {
+                        required: "El nombre es obligatorio",
+                        minlength: "Mínimo 2 caracteres"
+                    },
+                    apellido: {
+                        required: "El apellido es obligatorio",
+                        minlength: "Mínimo 2 caracteres"
+                    },
+                    cedula: {
+                        required: "La cédula es obligatoria",
+                        digits: "Solo números permitidos",
+                        minlength: "Debe tener 10 dígitos",
+                        maxlength: "Debe tener 10 dígitos"
+                    },
+                    correo: {
+                        required: "El correo es obligatorio",
+                        email: "Formato de correo inválido"
+                    },
+                    telefono: {
+                        digits: "Solo números permitidos",
+                        minlength: "Mínimo 7 dígitos",
+                        maxlength: "Máximo 10 dígitos"
+                    },
+                    direccion: {
+                        required: "La dirección es obligatoria",
+                        minlength: "Mínimo 5 caracteres"
+                    }
+                },
+                errorElement: "span",
+                errorClass: "error",
+                highlight: function(element) {
+                    $(element).addClass('error').removeClass('valid');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('error').addClass('valid');
+                },
+                submitHandler: function(form) {
+                    // Mostrar loading con SweetAlert2
+                    Swal.fire({
+                        title: 'Registrando...',
+                        text: 'Por favor espere',
+                        icon: 'info',
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    });
+                    form.submit();
+                }
+            });
+
+            // Mostrar mensajes de Django con SweetAlert2
+            const msgs = document.querySelectorAll('.django-message');
+            msgs.forEach(function(el) {
+                const tag = (el.getAttribute('data-tags') || 'info').toLowerCase();
+                const text = el.getAttribute('data-text') || '';
+                let icon = 'info';
+                if (tag.includes('success')) icon = 'success';
+                else if (tag.includes('error') || tag.includes('danger')) icon = 'error';
+                else if (tag.includes('warning')) icon = 'warning';
+                
+                Swal.fire({
+                    title: icon === 'success' ? 'Éxito' : 'Atención',
+                    text: text,
+                    icon: icon,
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

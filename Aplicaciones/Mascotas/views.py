@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Mascota
 from Aplicaciones.Personas.models import Persona
 from Aplicaciones.autenticacion.decorators import login_required, admin_required
+from django.contrib import messages
+
 
 @login_required
 def inicio(request):
@@ -20,7 +22,7 @@ def nueva_mascota(request):
         mascota.edad = request.POST['edad']
         mascota.sexo = request.POST['sexo']
         mascota.descripcion = request.POST['descripcion']
-        mascota.fecha_rescate = request.POST['fecha_rescate']
+        
         mascota.adoptado = 'adoptado' in request.POST
 
         if request.POST.get('dueño'):
@@ -50,7 +52,6 @@ def editar_mascota(request, id):
         mascota.edad = request.POST['edad']
         mascota.sexo = request.POST['sexo']
         mascota.descripcion = request.POST['descripcion']
-        mascota.fecha_rescate = request.POST['fecha_rescate']
         mascota.adoptado = 'adoptado' in request.POST
         
         if request.POST['dueño'] != '':
@@ -75,5 +76,25 @@ def editar_mascota(request, id):
 @admin_required
 def eliminar_mascota(request, id):
     mascota = get_object_or_404(Mascota, id=id)
-    mascota.delete()
+    nombre_mascota = mascota.nombre
+    
+    try:
+        # Verificar relaciones de forma SEGURA
+        from Aplicaciones.Adopcion.models import SolicitudAdopcion
+        
+        # ✅ VALIDACIÓN: Verificar relaciones foráneas
+        tiene_solicitudes = SolicitudAdopcion.objects.filter(mascota=mascota).exists()
+        
+        if tiene_solicitudes:
+            mensaje_error = f'No se puede eliminar a {nombre_mascota} porque tiene '
+            mensaje_error += 'solicitudes de adopción relacionadas.'
+            
+            messages.error(request, mensaje_error)
+        else:
+            mascota.delete()
+            messages.success(request, f'Mascota {nombre_mascota} eliminada correctamente.')
+            
+    except Exception as e:
+        messages.error(request, f'Error al eliminar: {str(e)}')
+    
     return redirect('inicio')
