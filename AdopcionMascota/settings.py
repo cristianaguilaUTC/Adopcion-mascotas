@@ -77,13 +77,29 @@ DATABASES = {
     }
 }
 
-# Para Render - usa DATABASE_URL automáticamente si existe
+# Database - CONFIGURACIÓN CORRECTA
 if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600,
-        conn_health_checks=True,
-        ssl_require=True
-    )
+    # PARA RENDER - producción
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True
+        )
+    }
+else:
+    # PARA DESARROLLO LOCAL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'adopcion_mascotas',
+            'USER': 'postgres', 
+            'PASSWORD': 'aiypwzqp',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
