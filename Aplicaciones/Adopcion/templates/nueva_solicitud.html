@@ -99,7 +99,6 @@
                 }
             },
             submitHandler: function(form) {
-                // Opcional: Mostrar mensaje de éxito antes de enviar
                 Swal.fire({
                     title: 'Enviando solicitud...',
                     text: 'Por favor espere',
@@ -111,7 +110,6 @@
             }
         });
 
-        // Opcional: Validación en tiempo real para el textarea
         $('#motivo').on('input', function() {
             var length = $(this).val().length;
             if (length < 10) {
@@ -123,7 +121,6 @@
             }
         });
 
-        // Validación para selects
         $('#persona, #mascota').on('change', function() {
             if ($(this).val() === "") {
                 $(this).addClass('is-invalid').removeClass('is-valid');

@@ -67,7 +67,6 @@
 <script>
 $(document).ready(function () {
 
-    // SweetAlert cuando eligen Aprobado
     $("#estado").change(function () {
         if($(this).val() === "Aprobado"){
             Swal.fire({
@@ -85,7 +84,6 @@ $(document).ready(function () {
         }
     });
 
-    // VALIDAR FORM
     $("#formEditarAdopcion").validate({
         rules: {
             estado: { required: true },

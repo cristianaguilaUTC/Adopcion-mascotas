@@ -90,7 +90,6 @@
     <div class="register-container">
         <div class="register-title">📝 Registro de Usuario</div>
         
-        <!-- Mensajes ocultos para SweetAlert2 -->
         {% if messages %}
         <div style="display:none">
             {% for message in messages %}
@@ -151,7 +150,6 @@
 
     <script>
         $(document).ready(function() {
-            // Configurar validación
             $("#registroForm").validate({
                 rules: {
                     username: {
@@ -236,7 +234,6 @@
                     $(element).removeClass('error').addClass('valid');
                 },
                 submitHandler: function(form) {
-                    // Mostrar loading con SweetAlert2
                     Swal.fire({
                         title: 'Registrando...',
                         text: 'Por favor espere',
@@ -248,7 +245,6 @@
                 }
             });
 
-            // Mostrar mensajes de Django con SweetAlert2
             const msgs = document.querySelectorAll('.django-message');
             msgs.forEach(function(el) {
                 const tag = (el.getAttribute('data-tags') || 'info').toLowerCase();

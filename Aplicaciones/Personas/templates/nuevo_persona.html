@@ -93,17 +93,14 @@
             highlight: function (element) {
                 var $el = $(element);
                 $el.addClass("is-invalid");
-                // no añadir iconos ni clases de valid (solo is-invalid)
                 if ($el.is("select")) $el.addClass("is-invalid");
             },
             unhighlight: function (element) {
                 var $el = $(element);
                 $el.removeClass("is-invalid");
-                // no añadir is-valid ni iconos
                 if ($el.is("select")) $el.removeClass("is-invalid");
             },
             errorPlacement: function (error, element) {
-                // insertar mensaje simple después del control (Bootstrap)
                 if (element.prop("type") === "file") {
                     error.insertAfter(element);
                 } else {

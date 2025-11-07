@@ -6,12 +6,9 @@
 <div class="page-heading">
   <h3 class="text-center mb-3">Dashboard BI</h3>
 </div>
-
 <section class="section">
   <div class="container-fluid">
     <div class="row g-4">
-
-      <!-- FILTRO DE EDADES POR ESPECIE -->
       <div class="col-12">
         <div class="card p-3">
           <div class="d-flex align-items-center gap-3">
@@ -27,16 +24,12 @@
           </div>
         </div>
       </div>
-
-      <!-- LINEA: SOLICITUDES POR DÍA (por estado) -->
       <div class="col-12">
         <div class="card p-3">
           <h6 class="m-0">Solicitudes por día (últimos 30 días)</h6>
           <canvas id="chartLine"></canvas>
         </div>
       </div>
-
-      <!-- BARRAS: PREFERENCIA POR ESPECIE -->
       <div class="col-lg-6 col-12">
         <div class="card p-3">
           <h6 class="m-0">Mascotas por especie</h6>
@@ -44,7 +37,6 @@
         </div>
       </div>
 
-      <!-- PIE: ADOPTADAS VS NO ADOPTADAS -->
       <div class="col-lg-6 col-12">
         <div class="card p-3">
           <h6 class="m-0">Adopciones (estado final de mascotas)</h6>
@@ -52,7 +44,6 @@
         </div>
       </div>
 
-      <!-- BARRAS: MACHO VS HEMBRA -->
       <div class="col-12">
         <div class="card p-3">
           <h6 class="m-0">Mascotas por sexo</h6>
@@ -88,15 +79,12 @@
   let especieSel = "{{ especie_sel }}";
   let edadesDatasetActual = {{ edades_dataset_actual|safe }};
 
-  // helper para crear colores aleatorios consistentes por dataset
   function rndColor(seed) {
-    // color HSL fijo por estado (seed), para que no cambie al refrescar
     const hues = { "Pendiente": 210, "Aprobado": 140, "Rechazado": 0 };
     const h = hues[seed] ?? Math.floor(Math.random()*360);
     return `hsl(${h} 70% 50%)`;
   }
 
-  // ------ Chart 1: Línea solicitudes por día (multi-serie) ------
   const lineDatasets = ESTADOS.map(est => ({
     label: est,
     data: SERIES_POR_ESTADO[est],
@@ -120,7 +108,6 @@
     }
   });
 
-  // ------ Chart 2: Barras por especie ------
   new Chart(document.getElementById('chartEspecie'), {
     type: 'bar',
     data: {
@@ -133,7 +120,6 @@
     options: { scales: { y: { beginAtZero: true } } }
   });
 
-  // ------ Chart 3: Pie adoptadas vs no adoptadas ------
   new Chart(document.getElementById('chartAdoptadas'), {
     type: 'pie',
     data: {
@@ -142,7 +128,6 @@
     }
   });
 
-  // ------ Chart 4: Barras Macho/Hembra ------
   new Chart(document.getElementById('chartSexo'), {
     type: 'bar',
     data: {
@@ -152,7 +137,6 @@
     options: { scales: { y: { beginAtZero: true } } }
   });
 
-  // ------ Chart 5: Edades por especie (con filtro select) ------
   const ctxEdades = document.getElementById('chartEdades');
   const chartEdades = new Chart(ctxEdades, {
     type: 'bar',
