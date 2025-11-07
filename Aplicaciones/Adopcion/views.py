@@ -57,7 +57,6 @@ def nueva_solicitud(request, mascota_id=None):
         mascota = None
         mascotas = Mascota.objects.filter(adoptado=False)
     
-    # Para usuarios normales, solo pueden solicitar para sí mismos
     try:
         persona_usuario = Persona.objects.get(usuario=request.user)
         personas = Persona.objects.filter(id=persona_usuario.id)
@@ -80,7 +79,7 @@ def nueva_solicitud(request, mascota_id=None):
         'mascota_seleccionada': mascota
     })
 @admin_required
-def editar_solicitud(request, id):
+def editar_solicitud(request, id):  
     solicitud = get_object_or_404(SolicitudAdopcion, id=id)
     personas = Persona.objects.all()
     mascotas = Mascota.objects.all()

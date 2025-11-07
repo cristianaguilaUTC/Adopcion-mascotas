@@ -119,3 +119,48 @@
     </div>
 </section>
 {% endblock %}
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        const razasPorEspecie = {
+            "Canina": ["Labrador Retriever", "Pastor Alemán", "Bulldog", "Golden Retriever", "Beagle", "Chihuahua", "Poodle", "Rottweiler", "Boxer", "Dálmata"],
+            "Felina": ["Persa", "Siamés", "Maine Coon", "Bengalí", "Esfinge", "Angora", "British Shorthair", "Abisinio"],
+            "Aviar": ["Perico", "Canario", "Loro", "Agapornis", "Cacatúa"],
+            "Reptil": ["Iguana", "Serpiente", "Tortuga", "Camaleón"]
+        };
+
+        const especieSeleccionada = "{{ mascota.especie }}";
+        const razaSeleccionada = "{{ mascota.raza }}";
+        const razaSelect = $("#raza");
+
+        // Inicializa las razas según la especie actual
+        if (razasPorEspecie[especieSeleccionada]) {
+            razaSelect.empty();
+            razaSelect.append('<option value="">Seleccione una raza...</option>');
+            razasPorEspecie[especieSeleccionada].forEach(raza => {
+                const selected = raza === razaSeleccionada ? "selected" : "";
+                razaSelect.append(`<option value="${raza}" ${selected}>${raza}</option>`);
+            });
+        }
+
+        // Cambiar dinámicamente si se modifica la especie
+        $("#especie").change(function () {
+            const especie = $(this).val();
+            razaSelect.empty();
+
+            if (razasPorEspecie[especie]) {
+                razaSelect.append('<option value="">Seleccione una raza...</option>');
+                razasPorEspecie[especie].forEach(raza => {
+                    razaSelect.append(`<option value="${raza}">${raza}</option>`);
+                });
+            } else if (especie === "Otro") {
+                $("#grupoRaza").html(`
+                    <label for="raza" class="form-label">Raza:</label>
+                    <input type="text" class="form-control" id="raza" name="raza" placeholder="Ingrese la raza o tipo">
+                `);
+            } else {
+                razaSelect.append('<option value="">Seleccione una especie primero</option>');
+            }
+        });
+    });
+</script>

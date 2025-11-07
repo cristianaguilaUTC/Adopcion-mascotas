@@ -12,7 +12,6 @@ def inicio_personas(request):
 @admin_required
 def nueva_persona(request):
     if request.method == 'POST':
-        # Tu código actual de nueva persona
         persona = Persona()
         persona.nombre = request.POST['nombre']
         persona.apellido = request.POST['apellido']
@@ -36,7 +35,6 @@ def nueva_persona(request):
 def editar_persona(request, id):
     persona = get_object_or_404(Persona, id=id)
     if request.method == 'POST':
-        # Tu código actual de editar
         persona.nombre = request.POST['nombre']
         persona.apellido = request.POST['apellido']
         persona.cedula = request.POST['cedula']
@@ -62,16 +60,13 @@ def eliminar_persona(request, id):
         nombre_completo = f"{persona.nombre} {persona.apellido}"
         
         try:
-            # ✅ VALIDACIÓN: Evitar que el admin se elimine a sí mismo
             if persona.usuario == request.user:
                 messages.error(request, 'No puedes eliminar tu propio perfil de administrador.')
                 return redirect('inicio_personas')
             
-            # Verificar relaciones de forma SEGURA
             from Aplicaciones.Mascotas.models import Mascota
             from Aplicaciones.Adopcion.models import SolicitudAdopcion
             
-            # ✅ VALIDACIÓN MEJORADA: Verificar relaciones foráneas
             tiene_mascotas = Mascota.objects.filter(dueño=persona).exists()
             tiene_solicitudes = SolicitudAdopcion.objects.filter(persona=persona).exists()
             
@@ -86,7 +81,6 @@ def eliminar_persona(request, id):
                 
                 messages.error(request, mensaje_error)
             else:
-                # Si no hay relaciones, eliminar también el usuario de Django
                 if persona.usuario:
                     persona.usuario.delete()
                 persona.delete()
