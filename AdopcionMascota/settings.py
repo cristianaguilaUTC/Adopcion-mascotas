@@ -65,18 +65,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'AdopcionMascota.wsgi.application'
 
-# Database - CONFIGURACIÓN MEJORADA para Render
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'adopcion_mascotas',
-        'USER': 'postgres', 
-        'PASSWORD': 'aiypwzqp',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
 # Database - CONFIGURACIÓN CORRECTA
 if 'DATABASE_URL' in os.environ:
     # PARA RENDER - producción
@@ -100,7 +88,6 @@ else:
             'PORT': '5432',
         }
     }
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
