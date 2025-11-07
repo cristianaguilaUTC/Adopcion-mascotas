@@ -16,9 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
+
+def test_view(request):
+    return HttpResponse("✅ ¡La app funciona! El problema está en los templates o static files")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('test/', test_view),
      path('auth/', include('Aplicaciones.autenticacion.urls')),
     path('mascotas/', include('Aplicaciones.Mascotas.urls')),
     path('personas/', include('Aplicaciones.Personas.urls')),
