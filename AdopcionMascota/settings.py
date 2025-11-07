@@ -130,3 +130,9 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True  # ← Cambiar a True temporalmente
+
+ALLOWED_HOSTS = ['adopcion-mascotas-itaf.onrender.com', 'localhost', '127.0.0.1', '.onrender.com', '*']

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.http import HttpResponse
 
 urlpatterns = [
     path('', views.inicio_adopciones, name='inicio_adopciones'),
@@ -10,3 +11,5 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path('certificado/<int:solicitud_id>/', views.generar_certificado_adopcion, name='generar_certificado'),
 ]
+def test_view(request):
+    return HttpResponse("✅ ¡APP FUNCIONANDO! El problema son los templates")
